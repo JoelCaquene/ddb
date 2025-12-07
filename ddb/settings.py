@@ -72,7 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.messages',
+                'django.contrib.messages.context_processors.messages', # CORREÇÃO: Necessário para o admin!
             ],
         },
     },
@@ -83,6 +83,7 @@ WSGI_APPLICATION = 'ddb.wsgi.application'
 # --- Database ---
 DATABASES = {
     'default': dj_database_url.config(
+        # Note: A URL do DATABASE_URL é lida diretamente do Render
         default=config('DATABASE_URL', default=f'sqlite:///{BASE_DIR}/db.sqlite3')
     )
 }
