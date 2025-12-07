@@ -118,8 +118,15 @@ USE_TZ = True
 # --- Static files (CSS, JavaScript) ---
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-# CORREÇÃO CRÍTICA: A pasta 'static' contém a subpasta 'ddb' onde estão as imagens. 
-STATICFILES_DIRS = [BASE_DIR / 'static' / 'ddb'] 
+
+# 🚀 CORREÇÃO FINALIZADA: Usa tupla para forçar o prefixo 'ddb/' na coleta estática.
+# Isso garante que a URL /static/ddb/... funcione, correspondendo ao seu HTML/JS.
+STATICFILES_DIRS = [
+    (
+        'ddb', 
+        BASE_DIR / 'static' / 'ddb'
+    )
+] 
 
 # Use WhiteNoise para servir arquivos estáticos de forma comprimida e manifestada em Produção
 if not DEBUG:
