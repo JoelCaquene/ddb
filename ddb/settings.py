@@ -72,7 +72,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages', # CORREÇÃO: Necessário para o admin!
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -117,7 +117,9 @@ USE_TZ = True
 # --- Static files (CSS, JavaScript) ---
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# CORREÇÃO CRÍTICA: A pasta 'static' contém a subpasta 'ddb' onde estão as imagens. 
+# Fazemos o Django procurar os arquivos estáticos dentro de 'static/ddb'
+STATICFILES_DIRS = [BASE_DIR / 'static' / 'ddb'] 
 
 # Use WhiteNoise para servir arquivos estáticos de forma comprimida e manifestada em Produção
 if not DEBUG:
