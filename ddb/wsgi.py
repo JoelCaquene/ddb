@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'saudi_aramco.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ddb.settings')
 
 application = get_wsgi_application()

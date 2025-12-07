@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe # Importação necessária para renderizar HTML no Admin
 from .models import (
     CustomUser, PlatformSettings, Level, BankDetails, Deposit, 
-    Withdrawal, Task, Roulette, RouletteSettings, UserLevel, PlatformBankDetails
+    Withdrawal, Task, Roulette, RouletteSettings, UserLevel, PlatformBankDetails,
+    DailyRewardCode, UserRewardClaim # NOVOS MODELOS
 )
 
 # ---
@@ -93,4 +94,20 @@ class UserLevelAdmin(admin.ModelAdmin):
     search_fields = ('user__phone_number', 'level__name')
     list_filter = ('is_active',)
 
-# ---
+
+# --- ADMIN PARA PRÊMIOS/SUBSÍDIOS DIÁRIOS ---
+
+@admin.register(DailyRewardCode)
+class DailyRewardCodeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'reward_amount', 'created_date', 'is_active')
+    search_fields = ('code',)
+    list_filter = ('is_active', 'created_date')
+    readonly_fields = ('created_date',)
+    
+@admin.register(UserRewardClaim)
+class UserRewardClaimAdmin(admin.ModelAdmin):
+    list_display = ('user', 'reward_code', 'claim_date', 'claimed_at')
+    search_fields = ('user__phone_number', 'reward_code__code')
+    list_filter = ('claim_date', 'reward_code__code')
+    readonly_fields = ('user', 'reward_code', 'claim_date', 'claimed_at') # Não deve ser editável após o resgate
+    

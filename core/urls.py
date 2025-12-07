@@ -17,6 +17,11 @@ urlpatterns = [
     path('deposito/', views.deposito, name='deposito'),
     path('saque/', views.saque, name='saque'),
     path('tarefa/', views.tarefa, name='tarefa'),
+    path('premios-subsidios/', views.premios_subsidios, name='premios_subsidios'), 
+    
+    # NOVA URL para o processamento do resgate do subsídio diário (POST)
+    path('claim-daily-reward/', views.claim_daily_reward, name='claim_daily_reward'), 
+    
     path('process_task/', views.process_task, name='process_task'),
     path('nivel/', views.nivel, name='nivel'),
     path('equipa/', views.equipa, name='equipa'),

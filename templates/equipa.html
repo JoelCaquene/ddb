@@ -4,31 +4,272 @@
 {% block title %}Minha Equipa{% endblock %}
 
 {% block content %}
+<style>
+    /* Variáveis de Cores ajustadas para Fundo Claro */
+    :root {
+        --cor-fundo: #ffffff; /* Fundo Branco */
+        --cor-container-bg: #f8f9fa; /* Fundo do container claro */
+        --cor-card-bg: #ffffff; /* Fundo do card branco */
+        --cor-texto-escuro: #212529; /* Cor principal do texto */
+        --cor-destaque-principal: #007bff; /* Azul primário */
+        --cor-destaque-secundario: #28a745; /* Verde (para subsídio e Investiu) */
+        --cor-sombra: 0 4px 8px rgba(0,0,0,0.1);
+        --cor-convite-bg: #e9ecef; /* Fundo da mensagem de convite */
+        --cor-erro: #dc3545; /* Vermelho para Não Investiu */
+    }
+
+    /* Estilos de Fundo e Layout */
+    body {
+        background-color: var(--cor-fundo);
+        color: var(--cor-texto-escuro);
+    }
+    .page-header-custom {
+        text-align: center;
+        padding: 20px 0;
+        background-color: var(--cor-fundo);
+        border-bottom: 2px solid var(--cor-destaque-principal);
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    .page-header-custom h1 {
+        color: var(--cor-texto-escuro);
+        font-family: 'Montserrat', sans-serif;
+        font-size: 2rem;
+    }
+    .team-container-custom {
+        background-color: var(--cor-container-bg); 
+        padding: 15px;
+        border-radius: 12px;
+        margin: 10px auto 20px auto;
+        max-width: 950px;
+        box-shadow: var(--cor-sombra);
+        color: var(--cor-texto-escuro);
+    }
+
+    /* --- Mensagem de Convite no Topo --- */
+    .invite-message {
+        background-color: var(--cor-destaque-principal);
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: bold;
+        line-height: 1.4;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* --- Link de Convite --- */
+    .invite-link-section h3 {
+        color: var(--cor-destaque-principal);
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        font-size: 1.2rem;
+    }
+    .invite-box {
+        background-color: var(--cor-convite-bg);
+        padding: 10px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        border: 1px solid #ced4da;
+    }
+    .invite-box span {
+        font-size: 0.85rem;
+        color: var(--cor-texto-escuro);
+        word-break: break-all;
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+    .copy-button {
+        background-color: var(--cor-destaque-principal);
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        flex-shrink: 0;
+    }
+    .copy-button:hover {
+        background-color: #0056b3;
+    }
+
+    /* 🟢 Indicadores Quadrados (2 Cards: Membros Totais e Subsídios) 🟢 */
+    .summary-area-square {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    .summary-square {
+        background-color: var(--cor-card-bg);
+        border-radius: 10px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        aspect-ratio: 1 / 1;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        border: 1px solid #e0e0e0;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .summary-square:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+    }
+    .square-icon {
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+    }
+    .square-title {
+        font-size: 0.8rem;
+        margin-bottom: 5px;
+        font-weight: 500;
+        opacity: 0.9;
+    }
+    .square-value {
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin: 0;
+    }
+    
+    /* Cores Personalizadas para os 2 Indicadores */
+    .total-members { 
+        background-color: #e9f5ff; /* Fundo leve */
+        border-left: 5px solid var(--cor-destaque-principal);
+    }
+    .total-members .square-icon { color: var(--cor-destaque-principal); }
+    .total-members .square-value { color: var(--cor-texto-escuro); }
+
+    .subsidy-balance { 
+        background-color: #e6ffed; /* Fundo leve */
+        border-left: 5px solid var(--cor-destaque-secundario);
+    }
+    .subsidy-balance .square-icon { color: var(--cor-destaque-secundario); }
+    .subsidy-balance .square-value { color: var(--cor-texto-escuro); }
+
+    /* --- LISTA DE MEMBROS (ESTRUTURA SIMPLIFICADA) --- */
+    .team-members-list h3 {
+        color: var(--cor-destaque-principal);
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+    }
+
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+    }
+    
+    .member-card {
+        background-color: var(--cor-card-bg);
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    .member-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .phone-number {
+        color: var(--cor-texto-escuro);
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+    .phone-number i {
+        color: var(--cor-destaque-principal);
+        margin-right: 5px;
+    }
+
+    /* Detalhes */
+    .detail-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        font-size: 0.95rem;
+        color: #6c757d;
+    }
+    .detail-item i {
+        color: var(--cor-destaque-principal);
+        margin-right: 8px;
+        width: 15px; 
+    }
+
+    /* Status Badge - Posicionado no topo */
+    .status-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 0 8px 0 8px;
+        font-size: 0.8rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .status-investiu {
+        background-color: var(--cor-destaque-secundario);
+        color: white;
+    }
+    .status-nao-investiu {
+        background-color: var(--cor-erro);
+        color: white;
+    }
+    .status-badge i {
+        color: white;
+        margin-right: 5px;
+    }
+    
+    .no-members-message {
+        color: #6c757d;
+        background-color: #f0f0f0;
+        border: 1px solid #dee2e6;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        margin-top: 15px;
+    }
+
+    /* Media query para ecrãs muito pequenos */
+    @media (max-width: 400px) {
+        .summary-area-square {
+            grid-template-columns: 1fr; 
+        }
+        .team-grid {
+            grid-template-columns: 1fr;
+        }
+        .member-card {
+            padding-top: 30px; 
+        }
+    }
+</style>
+
 <div class="page-header-custom">
     <h1>Minha Equipa <i class="fas fa-users"></i></h1>
 </div>
+
 <div class="team-container-custom">
 
-    {# Área de Resumo - Indicadores Redondos e Personalizados #}
-    <div class="summary-area-circular">
-        <div class="summary-circle total-members">
-            <h3 class="circle-title">Membros Totais</h3>
-            <p class="circle-value">{{ team_count }}</p>
-        </div>
-        <div class="summary-circle total-invested">
-            <h3 class="circle-title">Investidores</h3>
-            <p class="circle-value">{{ total_investors }}</p>
-        </div>
-        <div class="summary-circle total-non-invested">
-            <h3 class="circle-title">Não Investidos</h3>
-            <p class="circle-value">{{ total_non_investors }}</p>
-        </div>
-        <div class="summary-circle subsidy-balance">
-            <h3 class="circle-title">Subsídios (R$)</h3>
-            <p class="circle-value">R$ {{ subsidy_balance|floatformat:2 }}</p>
-        </div>
+    {# Mensagem de Convite no Topo #}
+    <div class="invite-message">
+        CONVIDE SEUS AMIGOS E GANHE 15% DO SEU DEPÓSITO. QUANTO MAIS MEMBROS CONVIDARES MAIS GANHAS! <i class="fas fa-gift"></i>
     </div>
-    
+
+    {# Link de Convite #}
     <div class="invite-link-section">
         <h3>Link de Convite <i class="fas fa-link"></i></h3>
         <div class="invite-box">
@@ -38,295 +279,71 @@
             </button>
         </div>
     </div>
+    
+    {# Área de Resumo - Apenas 2 Cards #}
+    <div class="summary-area-square">
+        <div class="summary-square total-members">
+            <i class="fas fa-users square-icon"></i>
+            <h3 class="square-title">Membros Totais</h3>
+            <p class="square-value">{{ team_count }}</p>
+        </div>
+        <div class="summary-square subsidy-balance">
+            <i class="fas fa-money-bill-wave square-icon"></i>
+            <h3 class="square-title">Subsídios (Kz)</h3>
+            <p class="square-value">{{ subsidy_balance|floatformat:2 }}</p>
+        </div>
+    </div>
 
+    {# Lista de Membros - SEM ABAS, LISTA ÚNICA #}
     <div class="team-members-list">
-        <h3>Membros por Nível <i class="fas fa-layer-group"></i></h3>
+        <h3>Todos os Membros da Equipa <i class="fas fa-list"></i></h3>
         
-        <div class="tabs">
-            <div class="tab-buttons">
-                {# Lógica de Abas Django - MANTIDA #}
-                {% for data in levels_data %}
-                    <button class="tab-button {% if forloop.first %}active{% endif %}" onclick="openTab(event, 'tab-{{ data.name|slugify }}')">
-                        {{ data.name }} ({{ data.count }})
-                    </button>
-                {% endfor %}
-            </div>
-
-            <div class="tab-content-container">
-                {# Lógica de Conteúdo de Abas Django - MANTIDA #}
-                {% for data in levels_data %}
-                    <div id="tab-{{ data.name|slugify }}" class="tab-content {% if forloop.first %}active{% endif %}">
-                        {% if data.members %}
-                            <div class="team-grid">
-                                {% for member in data.members %}
-                                    <div class="member-card {% if data.name == 'Não Investido' %}not-invested-card{% else %}invested-card{% endif %}">
-                                        <p class="phone-number"><i class="fas fa-mobile-alt"></i> {{ member.phone_number }}</p>
-                                        <p class="date-joined"><i class="fas fa-calendar-alt"></i> Desde: {{ member.date_joined|date:"d/m/Y" }}</p>
-                                    </div>
-                                {% endfor %}
-                            </div>
+        {% comment %} 
+            ATENÇÃO: Este código agora espera uma lista única chamada 'all_team_members' 
+            no seu contexto Django, que contém todos os membros de todos os níveis.
+        {% endcomment %}
+        
+        {% if all_team_members %}
+            <div class="team-grid">
+                {% for member in all_team_members %}
+                    <div class="member-card">
+                        
+                        {# Status Badge no topo/canto #}
+                        {% if member.investment_level and member.investment_level != 'Não Investiu' %}
+                            <span class="status-badge status-investiu">
+                                <i class="fas fa-check-circle"></i> {{ member.investment_level }}
+                            </span>
                         {% else %}
-                            <p class="no-members-message"><i class="fas fa-exclamation-circle"></i> Nenhum membro neste nível.</p>
+                            <span class="status-badge status-nao-investiu">
+                                <i class="fas fa-exclamation-circle"></i> Não Investiu
+                            </span>
                         {% endif %}
+
+                        <div class="member-info">
+                            <span class="phone-number"><i class="fas fa-mobile-alt"></i> {{ member.phone_number }}</span>
+                        </div>
+                        
+                        {# Data de Cadastro #}
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-alt"></i> Data de Cadastro: 
+                            <strong>{{ member.registration_date|date:"d/m/Y H:i" }}</strong>
+                        </div>
+
+                        {# Status (Detalhe do nível) #}
+                        <div class="detail-item">
+                            <i class="fas fa-chart-line"></i> Status de Investimento: 
+                            <strong>{{ member.investment_level|default:"Não Investiu" }}</strong>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
-        </div>
+        {% else %}
+            <p class="no-members-message"><i class="fas fa-info-circle"></i> Nenhum membro na sua equipa.</p>
+        {% endif %}
     </div>
 </div>
 
----
-
-<style>
-    /* Estilos de Fundo e Layout */
-    .page-header-custom {
-        text-align: center;
-        padding: 20px 0;
-        background-color: #0b1a2f; /* Fundo Escuro */
-        border-bottom: 3px solid #00aaff; /* Destaque Neon */
-        margin-bottom: 20px;
-    }
-    .page-header-custom h1 {
-        color: #fff;
-        font-family: 'Arial', sans-serif;
-        font-size: 2rem;
-    }
-    .team-container-custom {
-        background-color: #122238; /* Fundo Principal mais claro que o header */
-        padding: 25px;
-        border-radius: 12px;
-        margin: 20px auto;
-        max-width: 950px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.6);
-        color: #e0e0e0;
-    }
-
-    /* 🔴 Indicadores Redondos (Novos Estilos) 🔴 */
-    .summary-area-circular {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: space-around;
-        margin-bottom: 40px;
-    }
-    .summary-circle {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%; /* Torna o indicador redondo */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 10px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .summary-circle:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
-    }
-    .circle-title {
-        font-size: 0.85rem;
-        margin-bottom: 5px;
-        font-weight: 600;
-        opacity: 0.8;
-    }
-    .circle-value {
-        font-size: 1.8rem;
-        font-weight: bold;
-        margin: 0;
-    }
-    
-    /* Cores Personalizadas para Cada Indicador */
-    .summary-circle.total-members {
-        background: linear-gradient(45deg, #00aaff, #0077c2); /* Azul Neon */
-        color: #fff;
-    }
-    .summary-circle.total-invested {
-        background: linear-gradient(45deg, #4CAF50, #388e3c); /* Verde Investido */
-        color: #fff;
-    }
-    .summary-circle.total-non-invested {
-        background: linear-gradient(45deg, #ff4d4d, #cc0000); /* Vermelho Não Investido */
-        color: #fff;
-    }
-    .summary-circle.subsidy-balance {
-        background: linear-gradient(45deg, #FFD700, #daa520); /* Dourado Subsídio */
-        color: #333;
-    }
-    .summary-circle.subsidy-balance .circle-value {
-        color: #333; /* Texto do valor em cor escura para contraste */
-    }
-
-    /* --- Seções e Abas --- */
-    .invite-link-section h3, .team-members-list h3 {
-        color: #00aaff;
-        border-bottom: 1px solid #3d4a63;
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-        font-size: 1.3rem;
-    }
-    .invite-box {
-        background-color: #1c2e44;
-        padding: 12px;
-        border-radius: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-        border: 1px solid #3d4a63;
-    }
-    .invite-box span {
-        font-size: 0.95rem;
-        color: #99a2b5;
-        word-break: break-all;
-    }
-    .copy-button {
-        background-color: #00aaff;
-        color: #122238;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        margin-left: 10px;
-        transition: background-color 0.3s;
-    }
-    .copy-button:hover {
-        background-color: #0077c2;
-        color: #fff;
-    }
-
-    /* Estilos das Abas (mantidos/ajustados) */
-    .tab-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        border-bottom: 2px solid #3d4a63;
-        margin-bottom: 15px;
-        gap: 5px;
-    }
-    .tab-button {
-        background-color: #213149;
-        color: #e0e0e0;
-        border: none;
-        padding: 10px 15px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: background-color 0.3s, color 0.3s;
-        border-radius: 6px 6px 0 0;
-        margin-bottom: -2px; 
-        white-space: nowrap;
-    }
-    .tab-button.active {
-        background-color: #4CAF50;
-        color: #122238;
-        font-weight: bold;
-    }
-    .tab-content {
-        display: none;
-        padding: 15px 0;
-    }
-    .tab-content.active {
-        display: block;
-    }
-
-    /* Lista de Membros */
-    .team-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 15px;
-    }
-    .member-card {
-        background-color: #1c2e44;
-        border-radius: 8px;
-        padding: 12px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        border-left: 5px solid;
-        transition: border-left-color 0.3s;
-    }
-    .invested-card {
-        border-left-color: #4CAF50; /* Verde para investido */
-    }
-    .not-invested-card {
-        border-left-color: #ff4d4d; /* Vermelho para não investido */
-    }
-    .member-card p {
-        margin: 5px 0;
-        color: #fff;
-        font-size: 0.9rem;
-    }
-    .phone-number {
-        font-weight: bold;
-        color: #00aaff;
-        font-size: 1rem;
-    }
-    .date-joined {
-        font-size: 0.8rem;
-        color: #99a2b5;
-    }
-    .no-members-message {
-        color: #99a2b5;
-        text-align: center;
-        padding: 30px;
-        background-color: #1c2e44;
-        border-radius: 8px;
-    }
-    .member-card i, .no-members-message i {
-        margin-right: 5px;
-        color: #4CAF50; /* Cor dos ícones */
-    }
-
-    /* Media query para responsividade */
-    @media (max-width: 650px) {
-        .summary-area-circular {
-            flex-direction: column;
-            align-items: center;
-        }
-        .summary-circle {
-            width: 120px;
-            height: 120px;
-        }
-        .circle-value {
-            font-size: 1.5rem;
-        }
-        .team-container-custom {
-            padding: 15px;
-        }
-    }
-</style>
-
 <script>
-    // Lógica das Abas (MANTIDA)
-    function openTab(evt, tabName) {
-        let i, tabcontent, tabbuttons;
-
-        tabcontent = document.getElementsByClassName("tab-content");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-            tabcontent[i].classList.remove("active");
-        }
-
-        tabbuttons = document.getElementsByClassName("tab-button");
-        for (i = 0; i < tabbuttons.length; i++) {
-            tabbuttons[i].classList.remove("active");
-        }
-
-        document.getElementById(tabName).style.display = "block";
-        document.getElementById(tabName).classList.add("active");
-        evt.currentTarget.classList.add("active");
-    }
-
-    // Abre a primeira aba por padrão ao carregar (MANTIDA)
-    document.addEventListener('DOMContentLoaded', (event) => {
-        const firstTabButton = document.querySelector('.tab-button');
-        if (firstTabButton) {
-            // Simula o clique no primeiro botão para garantir que a aba correta abra
-            firstTabButton.click(); 
-        }
-    });
-
-
     // Lógica para Copiar Link (MANTIDA)
     document.addEventListener('DOMContentLoaded', function() {
         const copyButton = document.querySelector('.copy-button');
@@ -338,11 +355,12 @@
                 navigator.clipboard.writeText(textToCopy)
                     .then(() => {
                         const originalText = e.target.innerHTML;
+                        const originalBg = e.target.style.backgroundColor;
                         e.target.innerHTML = '<i class="fas fa-check"></i> Copiado!';
-                        e.target.style.backgroundColor = '#4CAF50';
+                        e.target.style.backgroundColor = 'var(--cor-destaque-secundario)'; // Verde de sucesso
                         setTimeout(() => {
                             e.target.innerHTML = originalText;
-                            e.target.style.backgroundColor = '#00aaff';
+                            e.target.style.backgroundColor = originalBg;
                         }, 2000);
                     })
                     .catch(err => {

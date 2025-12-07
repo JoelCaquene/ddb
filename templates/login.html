@@ -4,27 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SAUDI ARAMCO</title>
+    <title>Acesso - ddb</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
-        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
-
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+        
         :root {
-            /* Tema ELETROBRAS (Arquivo 1) reintroduzido */
-            --cor-fundo-principal: #ffffff; /* Fundo branco */
-            --cor-card-fundo: rgba(255, 255, 255, 0.9);
-            --cor-borda-input: #e0e0e0;
-            --cor-placeholder: #616161;
-            --cor-texto-claro: #212121; /* Texto escuro para fundo claro */
-            --cor-texto-escuro: #212121;
-            /* Destaques SAUDI ARAMCO (Verde/Dourado) mantidos */
-            --cor-destaque-1: #008000; /* Verde escuro (corporativo) */
-            --cor-destaque-2: #ffcc00; /* Dourado/Amarelo Petróleo */
-            --cor-botao-cadastro: linear-gradient(45deg, var(--cor-destaque-1), var(--cor-destaque-2));
-            --cor-shadow-card: 0 10px 40px rgba(0, 0, 0, 0.1);
+            /* REQUISITO: Fundo Azul Escuro com Brilho */
+            --cor-fundo-principal: #0a1930; 
+            --cor-card-fundo: rgba(255, 255, 255, 0.05); /* Card Transparente */
+            --cor-borda-input: #4a638b;
+            --cor-placeholder: #aab8c2;
+            --cor-texto-claro: #f0f4f8; /* Texto claro para fundo escuro */
+            --cor-texto-secundario: #aab8c2;
+            
+            /* Destaques (Verde/Dourado mantidos nos botões, mas mais contidos) */
+            --cor-destaque-verde: #38c172; 
+            --cor-destaque-amarelo: #ffcc00; 
+            --cor-botao-entrar: linear-gradient(90deg, #1abc9c, #16a085); /* Verde mais profissional */
+            --cor-botao-cadastro: linear-gradient(90deg, #3498db, #2980b9); /* Azul de Cadastro */
+            --cor-shadow-card: 0 10px 40px rgba(0, 0, 0, 0.5);
+            
+            /* Brilho do Fundo */
+            --brilho-cor: rgba(255, 255, 255, 0.05);
         }
 
-        /* ESTILOS BASE (PADRÃO PARA DESKTOPS E TELAS MAIORES) */
+        /* ESTILOS BASE */
         body {
             font-family: 'Montserrat', sans-serif;
             margin: 0;
@@ -33,141 +39,119 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Mantido para telas grandes */
+            min-height: 100vh;
             background-color: var(--cor-fundo-principal);
-            color: var(--cor-texto-escuro);
+            color: var(--cor-texto-claro);
             position: relative;
-            overflow-x: hidden;
+            overflow-x: hidden; /* REMOVIDA BARRA HORIZONTAL */
             overflow-y: auto;
-            animation: fundoBrilho 10s infinite alternate;
-        }
-
-        @keyframes fundoBrilho {
-            0% { background-color: #ffffff; }
-            100% { background-color: #f0f0f0; }
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url("https://images.unsplash.com/photo-1579294247481-9b1695427d14?q=80&w=2070&auto=format&fit=crop");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            opacity: 0.1;
-            z-index: -1;
-            filter: grayscale(100%) brightness(150%);
-        }
-
-        .title-platform {
-            font-size: 4em; 
-            font-weight: 700;
-            color: var(--cor-destaque-2); 
-            text-shadow: 0 0 20px var(--cor-destaque-2), 0 0 40px var(--cor-destaque-1);
-            letter-spacing: 3px; 
-            margin-bottom: 30px;
-            padding: 0 20px;
-            position: relative;
-            text-transform: uppercase;
-            animation: piscaDourado 1s infinite alternate;
-            white-space: nowrap; 
-        }
-
-        @keyframes piscaDourado {
-            0% { text-shadow: 0 0 10px var(--cor-destaque-2), 0 0 20px var(--cor-destaque-1); }
-            100% { text-shadow: 0 0 25px var(--cor-destaque-2), 0 0 50px var(--cor-destaque-1); }
+            animation: fundoBrilho 15s infinite alternate; /* Efeito de brilho */
         }
         
-        /* Efeitos de pulso de luz (mantidos) */
-        .title-platform::before, .title-platform::after {
-            content: '';
-            position: absolute;
-            background-color: transparent;
-            border-radius: 50%;
-            animation: pulsoLuz 2s infinite ease-in-out;
-            opacity: 0;
+        /* ANIMAÇÃO DE FUNDO SUAVE (BRILHO AZUL ESCURO) */
+        @keyframes fundoBrilho {
+            0% { background-color: #0a1930; }
+            100% { background-color: #081525; }
         }
 
-        .title-platform::before {
-            width: 150px;
-            height: 150px;
-            top: 50%;
-            left: -50px;
-            transform: translateY(-50%);
-            box-shadow: 0 0 50px 30px var(--cor-destaque-2);
-            animation-delay: 0s;
+        /* REMOVE TODOS OS JOGOS DE LUZES/PARTÍCULAS ANTERIORES */
+        .title-platform, .energia-particula, body::before, .title-platform::before, .title-platform::after {
+            display: none !important;
         }
 
-        .title-platform::after {
-            width: 150px;
-            height: 150px;
-            top: 50%;
-            right: -50px;
-            transform: translateY(-50%);
-            box-shadow: 0 0 50px 30px var(--cor-destaque-1);
-            animation-delay: 1s;
+        /* CABEÇALHO COM IMAGEM (SUBSTITUIÇÃO DE 'DDB' TEXTO) */
+        .logo-container {
+            margin-bottom: 40px;
+            text-align: center;
         }
-
-        @keyframes pulsoLuz {
-            0% { transform: scale(0.5); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 0; }
-            100% { transform: scale(0.5); opacity: 0.8; }
+        .logo-container img {
+            max-width: 150px; /* Ajuste o tamanho da sua logo aqui */
+            height: auto;
+            border-radius: 10px; /* Adiciona um pouco de estilo */
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.5); /* Brilho suave */
+            /* Se for usar um ícone SVG simples, use: */
+            /* color: var(--cor-destaque-amarelo); font-size: 5em; text-shadow: 0 0 15px var(--cor-destaque-amarelo); */
+        }
+        /* Para o ícone ilustrativo (se não tiver imagem) */
+        .logo-container .app-icon {
+            font-size: 5em;
+            color: var(--cor-destaque-amarelo);
+            text-shadow: 0 0 15px var(--cor-destaque-amarelo);
         }
 
         .content {
             background: var(--cor-card-fundo);
-            backdrop-filter: blur(10px);
-            padding: 50px;
+            backdrop-filter: blur(5px);
+            padding: 40px;
             border-radius: 20px;
             text-align: center;
             width: 90%;
-            max-width: 500px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ddd;
+            max-width: 450px;
+            box-shadow: var(--cor-shadow-card);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
-            z-index: 1;
-            animation: fadeIn 1.2s ease-out 0.5s backwards;
+            z-index: 10;
+            animation: fadeIn 1s ease-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        h2 {
-            margin-top: 0;
+        /* --- 2. SEPARADOR DE INTERCALAR (TABS) --- */
+        .tab-navigation {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 30px;
-            font-size: 2.5em;
-            color: var(--cor-texto-escuro);
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 5px;
+        }
+        .tab-navigation a {
+            flex-grow: 1;
+            padding: 15px 10px;
+            text-decoration: none;
+            color: var(--cor-texto-secundario);
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        /* A CLASSE 'active' deve ser adicionada pelo Django ou JS (Neste caso, presumimos 'login' é ativo) */
+        .tab-navigation .active {
+            background-color: var(--cor-destaque-amarelo);
+            color: var(--cor-fundo-principal);
+            box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);
             font-weight: 700;
         }
         
-        /* Estilizando os grupos de formulário */
+        /* Esconde o título h2 "Acesse sua conta" */
+        .header h2 {
+            display: none; 
+        }
+
+        /* --- 3. CAMPOS DE FORMULÁRIO --- */
         .form-group {
-            position: relative;
             margin-bottom: 25px;
-            text-align: left;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 8px;
+            display: flex; /* Para alinhar o ícone com o texto */
+            align-items: center;
+            margin-bottom: 10px;
             font-weight: 600;
-            color: var(--cor-texto-escuro); 
-            font-size: 0.9em;
+            color: var(--cor-texto-claro); 
+            font-size: 0.95em;
+        }
+        .form-group label i {
+            margin-right: 10px;
+            color: var(--cor-destaque-amarelo); /* Ícones chamativos */
+            font-size: 1.1em;
         }
 
         .auth-form input {
             width: 100%;
-            padding: 14px 20px; /* Ajuste de padding para inputs mais finos */
+            padding: 15px 20px; 
             border: 2px solid var(--cor-borda-input);
             border-radius: 12px;
-            background-color: #f9f9f9; 
-            color: var(--cor-texto-escuro);
+            background-color: rgba(255, 255, 255, 0.05); /* Fundo do input mais escuro */
+            color: var(--cor-texto-claro);
             font-size: 1.1em;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
             box-sizing: border-box;
@@ -175,8 +159,12 @@
 
         .auth-form input:focus {
             outline: none;
-            border-color: var(--cor-destaque-2); 
-            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            border-color: var(--cor-destaque-verde); 
+            box-shadow: 0 0 10px rgba(56, 193, 114, 0.5); /* Brilho verde suave */
+        }
+        
+        .auth-form input::placeholder {
+            color: var(--cor-placeholder);
         }
 
         .toggle-password { 
@@ -187,177 +175,137 @@
             color: var(--cor-placeholder); 
             cursor: pointer; 
             transition: color 0.3s ease;
+            font-size: 1.1em;
         }
 
-
-        /* Estilos de erro, se existirem no contexto do login */
         .errorlist {
-            list-style: none;
-            padding: 0;
-            margin: 5px 0 0 0;
-            color: #dc3545; 
-            font-size: 0.9em;
+            color: #ff6b6b; 
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
             font-weight: 500;
-            text-align: left;
         }
-
+        
+        /* --- 4. BOTÃO DE ENTRAR --- */
         .submit-button { 
             width: 100%;
-            padding: 18px 20px; /* Ajuste de padding para botão mais fino */
+            padding: 18px 20px; 
             border: none;
             border-radius: 12px;
-            background: var(--cor-botao-cadastro);
-            color: var(--cor-texto-escuro); 
+            background: var(--cor-botao-entrar);
+            color: #ffffff; /* Texto branco */
             font-size: 1.2em;
             font-weight: 700;
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4);
-            animation: pulsoBotaoPetroleo 1.8s infinite;
-            margin-top: 15px;
-        }
-
-        @keyframes pulsoBotaoPetroleo {
-            0% { transform: scale(1); box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4); }
-            50% { transform: scale(1.02); box-shadow: 0 12px 35px rgba(255, 204, 0, 0.6); }
-            100% { transform: scale(1); box-shadow: 0 8px 25px rgba(0, 128, 0, 0.4); }
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(26, 188, 156, 0.4);
+            margin-top: 20px;
         }
 
         .submit-button:hover {
-            transform: translateY(-4px) scale(1.01);
-            box-shadow: 0 10px 30px rgba(255, 204, 0, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(26, 188, 156, 0.6);
         }
 
-        .login-link a, .support-link a {
-            display: block;
-            margin-top: 35px;
-            color: var(--cor-destaque-2);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease, text-shadow 0.3s ease;
-            font-size: 1.1em;
+        .submit-button i {
+            margin-right: 10px;
         }
-
-        .login-link a {
-            margin-top: 15px; /* Ajuste para o link de cadastro ficar mais próximo */
+        
+        /* --- 5. REMOÇÃO DE APOIO AO CLIENTE E CADASTRO NO RODAPÉ --- */
+        .support-link, .login-link {
+            display: none; /* Remove apoio ao cliente e o link "Não tem conta? Cadastre-se" no rodapé */
         }
-
-        .login-link a:hover, .support-link a:hover {
-            color: var(--cor-destaque-1);
-            text-shadow: 0 0 10px var(--cor-destaque-1);
-        }
-
-        /* Efeitos de partículas de energia/óleo */
-        .energia-particula {
-            position: fixed;
-            background-color: var(--cor-destaque-2);
-            border-radius: 50%;
-            box-shadow: 0 0 5px var(--cor-destaque-2);
-            animation: moveParticula 15s infinite linear, fadeParticula 5s infinite alternate;
-            opacity: 0;
-            z-index: 0;
-        }
-
-        @keyframes moveParticula {
-            0% { transform: translate(calc(var(--rand-x) * 100vw), calc(var(--rand-y) * 100vh)); }
-            100% { transform: translate(calc(var(--rand-x-end) * 100vw), calc(var(--rand-y-end) * 100vh)); }
-        }
-
-        @keyframes fadeParticula {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 0.5; }
-        }
-
+        
         /* ---------------------------------------------------------------------- */
-        /* MEDIA QUERY PARA TELAS PEQUENAS (MOBILE) */
+        /* MEDIA QUERY PARA TELAS PEQUENAS (RESPONSIVIDADE) */
         /* ---------------------------------------------------------------------- */
         @media (max-width: 600px) {
             
             body {
-                min-height: auto; /* Permite que o body se ajuste ao conteúdo */
-                padding-top: 20px; /* Adiciona um pequeno espaçamento no topo */
-                padding-bottom: 20px; /* Adiciona um pequeno espaçamento na base */
-                justify-content: flex-start; /* Alinha o conteúdo ao topo para caber mais */
-            }
-
-            .title-platform {
-                font-size: 3em; /* Reduz o tamanho da fonte */
-                letter-spacing: 2px; 
-                margin-bottom: 20px; 
-                padding: 0 10px; 
-                white-space: normal;
-                text-align: center;
-            }
-            
-            /* Remove os pulsos de luz para economizar espaço e foco em mobile */
-            .title-platform::before, .title-platform::after {
-                display: none; 
+                padding-top: 20px; 
+                padding-bottom: 20px; 
             }
 
             .content {
-                padding: 30px 20px; /* Reduz o padding interno */
-                width: 95%; /* Aumenta a largura para usar quase toda a tela */
-                max-width: 100%; 
-                border-radius: 10px; /* Arredondamento menor */
+                padding: 30px 20px; 
+                border-radius: 15px; 
+            }
+            
+            .logo-container {
+                margin-bottom: 30px;
+            }
+            .logo-container img {
+                max-width: 120px; 
+            }
+            .logo-container .app-icon {
+                font-size: 4em;
             }
 
-            h2 {
-                font-size: 2em; /* Reduz o tamanho do título "Acesse sua conta" */
-                margin-bottom: 20px;
-            }
-
-            .form-group {
-                margin-bottom: 20px; /* Reduz a margem entre campos */
+            .tab-navigation a {
+                padding: 12px 8px;
+                font-size: 1em;
             }
 
             .auth-form input {
-                padding: 12px 15px; /* Reduz um pouco o tamanho dos inputs */
+                padding: 12px 15px; 
                 font-size: 1em;
             }
             
+            .form-group label {
+                font-size: 0.9em;
+            }
+            
             .submit-button {
-                padding: 16px 15px; /* Reduz um pouco o tamanho do botão */
+                padding: 15px 15px; 
                 font-size: 1.1em;
-                letter-spacing: 1px;
-            }
-
-            .login-link a, .support-link a {
-                margin-top: 20px; /* Ajuste final de espaçamento */
-            }
-
-            .login-link a {
-                margin-top: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="title-platform">SAUDI ARAMCO</div>
+    {# 1. IMAGEM NO TOPO (Substitui DDB texto) #}
+    <div class="logo-container">
+        <i class="fas fa-gem app-icon"></i>
+    </div>
+    
     <div class="content">
+        {# O título H2 "Acesse sua conta" foi escondido pelo CSS #}
         <div class="header">
             <h2>Acesse sua conta</h2>
         </div>
+
+        {# 2. SEPARADOR DE INTERCALAR (LOGIN E CADASTRO) #}
+        <div class="tab-navigation">
+            <a href="{% url 'login' %}" class="active">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="{% url 'cadastro' %}">
+                <i class="fas fa-user-plus"></i> Cadastro
+            </a>
+        </div>
         
+        {# O código do formulário de login foi mantido #}
         <form method="post" class="auth-form">
             {% csrf_token %}
 
-            {# Exibição de erros gerais do formulário (manter lógica Django) #}
+            {# Exibição de erros gerais #}
             {% if form.non_field_errors %}
                 <ul class="errorlist">
                     {% for error in form.non_field_errors %}
-                        <li>{{ error }}</li>
+                        <li><i class="fas fa-exclamation-circle"></i> {{ error }}</li>
                     {% endfor %}
                 </ul>
             {% endif %}
 
+            {# Campo de Telefone #}
             <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">Número de Telefone:</label>
+                <label for="{{ form.username.id_for_label }}"><i class="fas fa-mobile-alt"></i> Número de Telefone:</label>
                 <div style="position: relative;">
                     {{ form.username }}
                 </div>
-                {# Adiciona a exibição de erros do campo username #}
                 {% if form.username.errors %}
                     <ul class="errorlist">
                         {% for error in form.username.errors %}
@@ -367,14 +315,13 @@
                 {% endif %}
             </div>
             
+            {# Campo de Senha #}
             <div class="form-group">
-                <label for="{{ form.password.id_for_label }}">Senha:</label>
+                <label for="{{ form.password.id_for_label }}"><i class="fas fa-lock"></i> Senha:</label>
                 <div style="position: relative;">
                     {{ form.password }}
-                    {# Adicionado ícone de olho e seu ID para o script #}
                     <i class="fas fa-eye toggle-password" id="togglePassword"></i>
                 </div>
-                {# Adiciona a exibição de erros do campo password #}
                 {% if form.password.errors %}
                     <ul class="errorlist">
                         {% for error in form.password.errors %}
@@ -384,33 +331,30 @@
                 {% endif %}
             </div>
             
-            <button type="submit" class="submit-button">Entrar</button>
+            <button type="submit" class="submit-button">
+                <i class="fas fa-arrow-right"></i> ENTRAR
+            </button>
         </form>
         
-        <div class="support-link">
-            {% if whatsapp_link %}
-                <a href="{{ whatsapp_link }}" target="_blank">
-                    <i class="fab fa-whatsapp"></i> Suporte
-                </a>
-            {% else %}
-                <a href="#">
-                    <i class="fab fa-whatsapp"></i> Suporte
-                </a>
-            {% endif %}
-        </div>
-        <div class="login-link">
-            <a href="{% url 'cadastro' %}">Não tem conta? Cadastre-se</a>
-        </div>
+        {# 3. REMOÇÃO DE APOIO AO CLIENTE E CADASTRO INFERIOR #}
+        {# As divs .support-link e .login-link estão com 'display: none' no CSS #}
+        <div class="support-link"></div> 
+        <div class="login-link"></div>
+
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Lógica do botão de alternar senha
-            const setupPasswordToggle = (toggleId, inputId) => {
-                const toggle = document.querySelector(`#${toggleId}`);
-                const input = document.querySelector(`#${inputId}`);
+            // Lógica do botão de alternar senha (Mantida e melhorada)
+            const setupPasswordToggle = (toggleId, inputName) => {
+                const toggle = document.getElementById(toggleId);
+                const input = document.querySelector(`input[name="${inputName}"]`);
                 
                 if (toggle && input) {
+                    // Configura o ID do input (necessário se o Django não o fizer)
+                    const inputId = input.id || `${inputName}_id`;
+                    input.id = inputId;
+                    
                     toggle.addEventListener('click', function (e) {
                         const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
                         input.setAttribute('type', type);
@@ -420,35 +364,14 @@
                 }
             };
 
-            // Para o login, o campo de senha é 'password'
-            const passwordInput = document.querySelector('input[name="password"]');
-
-            if(passwordInput) setupPasswordToggle('togglePassword', passwordInput.id);
-
-            // Código para criar as partículas de energia/óleo
-            const numParticulas = 30;
-            const body = document.body;
-
-            for (let i = 0; i < numParticulas; i++) {
-                const particula = document.createElement('div');
-                particula.classList.add('energia-particula');
-                
-                const size = Math.random() * 8 + 3;
-                particula.style.width = `${size}px`;
-                particula.style.height = `${size}px`;
-                particula.style.backgroundColor = i % 2 === 0 ? 'var(--cor-destaque-1)' : 'var(--cor-destaque-2)';
-
-                const delay = Math.random() * 10;
-                particula.style.animationDelay = `${delay}s`;
-
-                particula.style.setProperty('--rand-x', Math.random() * 2 - 0.5);
-                particula.style.setProperty('--rand-y', Math.random() * 2 - 0.5);
-                particula.style.setProperty('--rand-x-end', Math.random() * 2 - 0.5);
-                particula.style.setProperty('--rand-y-end', Math.random() * 2 - 0.5);
-
-                body.appendChild(particula);
-            }
+            // Aplica a lógica de alternar senha ao campo 'password'
+            setupPasswordToggle('togglePassword', 'password');
         });
+        
+        // Se você não tiver um campo 'username' e sim 'Numero de Telefone',
+        // certifique-se que o atributo name do campo no Django é 'username' (padrão)
+        // ou ajuste o label for: <label for="id_username">Numero de Telefone:</label>
+
     </script>
 </body>
 </html>

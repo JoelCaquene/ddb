@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Prêmios e Subsídios{% endblock %}
+
+{% block content %}
+<style>
+    /* ------------------------------------- */
+    /* Estilos para o novo visual Profissional (Fundo Branco) */
+    /* ------------------------------------- */
+
+    /* Garante que o fundo da página (content block) é branco ou claro */
+    body {
+        background-color: #f8f9fa !important; /* Branco muito suave */
+    }
+
+    .page-container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #ffffff; /* Fundo principal branco */
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Sombra suave */
+    }
+
+    .page-header h1 {
+        font-size: 2em;
+        color: #004d40; /* Título em tom verde escuro (sério) */
+        border-bottom: 2px solid #e9ecef;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .content-box {
+        padding: 0;
+    }
+
+    .tab-title {
+        font-size: 1.3em;
+        color: #343a40;
+        margin-top: 20px;
+        margin-bottom: 15px;
+        border-left: 4px solid #007bff; /* Detalhe azul profissional */
+        padding-left: 10px;
+        font-weight: 500;
+    }
+
+    /* Estilo do Saldo (Caixa de Destaque) */
+    .info-item.highlight {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: #e6f7ff; /* Fundo azul claro para destaque */
+        border: 1px solid #b3e0ff;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        font-size: 1.1em;
+        font-weight: 700;
+    }
+
+    .info-item .label {
+        color: #0056b3; /* Azul escuro */
+    }
+
+    .info-item .value {
+        color: #004d40; /* Verde escuro para o valor */
+        font-size: 1.3em;
+    }
+
+    /* ------------------------------------- */
+    /* Formulário de Resgate */
+    /* ------------------------------------- */
+    .reward-form-container {
+        margin-top: 30px;
+        padding: 25px;
+        background-color: #f1f8e9; /* Fundo muito suave (quase branco) */
+        border: 1px solid #d4e3c9;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .reward-form-container h4 {
+        color: #343a40;
+        font-weight: 600;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .form-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        /* Garante que o flexbox funciona em telas pequenas */
+        flex-direction: row; 
+    }
+
+    .form-group input[type="text"] {
+        flex-grow: 1;
+        padding: 12px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        background-color: #ffffff;
+        color: #495057;
+        font-size: 16px;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-group input[type="text"]:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        outline: none;
+    }
+    
+    .btn-claim {
+        padding: 12px 20px;
+        background-color: #007bff; /* Azul primário */
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        text-transform: uppercase;
+        transition: background-color 0.3s, opacity 0.3s;
+        /* Para telas muito pequenas, o botão não fica muito grande */
+        min-width: 100px; 
+    }
+    
+    .btn-claim:hover {
+        background-color: #0056b3;
+    }
+
+    /* Mensagens */
+    .message {
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: center;
+        font-weight: 600;
+        border-left: 5px solid;
+    }
+    /* Classes de mensagens do Django */
+    .success {
+        background-color: #d4edda; 
+        color: #155724;
+        border-color: #c3e6cb;
+    }
+    .error {
+        background-color: #f8d7da; 
+        color: #721c24;
+        border-color: #f5c6cb;
+    }
+    .info, .warning, .debug {
+        background-color: #fff3cd; 
+        color: #856404;
+        border-color: #ffeeba;
+    }
+    
+    /* ------------------------------------- */
+    /* Responsividade */
+    /* ------------------------------------- */
+    @media (max-width: 600px) {
+        .page-container {
+            margin: 10px;
+            padding: 15px;
+            border-radius: 0;
+            box-shadow: none; /* Remove sombra em telas pequenas para look clean */
+        }
+        
+        .page-header h1 {
+            font-size: 1.8em;
+        }
+
+        .form-group {
+            /* Força a quebra de linha em telas muito pequenas (ex: iPhones) */
+            flex-direction: column; 
+        }
+
+        .btn-claim {
+            width: 100%; /* Botão em largura total em telas pequenas */
+        }
+        
+        .info-item.highlight {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+        .info-item .value {
+            font-size: 1.2em;
+        }
+    }
+</style>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>🏆 Meus Prêmios e Subsídios</h1>
+    </div>
+
+    <div class="content-box">
+        <h3 class="tab-title">Saldo de Subsídios</h3>
+        <div class="info-item highlight">
+            <span class="label">Saldo Atual de Subsídios:</span>
+            <span class="value">Kz {{ subsidy_balance|default:"0,00" }}</span>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <div class="reward-form-container">
+            <h4>
+                Resgate Seu Código de Bônus Diário
+            </h4>
+            
+            <form method="post" action="{% url 'claim_daily_reward' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="reward_code" placeholder="Insira o código de resgate" required>
+                    <button type="submit" class="btn-claim">RESGATAR BÔNUS</button>
+                </div>
+            </form>
+            
+            <p style="text-align: center; color: #6c757d; font-size: 0.9em; margin-top: 15px;">
+                O código é liberado diariamente pelo Administrador e só pode ser usado uma vez por usuário.
+            </p>
+        </div>
+
+        <h3 class="tab-title">Histórico de Bônus</h3>
+        <p style="text-align: center; color: #6c757d; margin-top: 15px;">
+            Aguardando a implementação da lista de resgates e histórico de prêmios.
+        </p>
+    </div>
+</div>
+{% endblock %}

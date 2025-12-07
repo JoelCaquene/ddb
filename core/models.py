@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
+from datetime import date
 import uuid
 import os
+from django.db.models import Q # Adicionado para a UniqueConstraint
 
 # ---
 
@@ -35,6 +37,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     subsidy_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Saldo de Subsídios")
     level_active = models.BooleanField(default=False, verbose_name="Nível Ativo")
     roulette_spins = models.IntegerField(default=0, verbose_name="Giros da Roleta")
+    
+    # 🌟 CAMPO ADICIONADO PARA CORRIGIR O AttributeError 
+    first_level_invested_paid_to_inviter = models.BooleanField(
+        default=False, 
+        verbose_name="Subsídio do Primeiro Nível Pago"
+    )
 
     USERNAME_FIELD = 'phone_number'
     REQUIRED_FIELDS = []
@@ -54,6 +62,65 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         super().save(*args, **kwargs)
 
 # ---
+# NOVOS MODELOS PARA O SISTEMA DE CÓDIGO DIÁRIO
+# ---
+
+class DailyRewardCode(models.Model):
+    """Armazena o código de subsídio diário que o Administrador define."""
+    code = models.CharField(
+        max_length=20, 
+        unique=True, 
+        verbose_name="Código de Resgate",
+        help_text="O código que os usuários devem digitar para resgatar o subsídio."
+    )
+    reward_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="Valor do Subsídio (Kz)",
+        help_text="O valor em Kwanzas que o usuário ganhará ao resgatar o código."
+    )
+    is_active = models.BooleanField(
+        default=True, 
+        verbose_name="Ativo",
+        help_text="Apenas um código deve estar ativo por vez."
+    )
+    created_date = models.DateField(
+        default=date.today, 
+        verbose_name="Data de Criação/Validade",
+        help_text="Este código é válido para resgate nesta data (UTC). Idealmente, alterado diariamente."
+    )
+
+    class Meta:
+        verbose_name = "Código de Subsídio Diário"
+        verbose_name_plural = "Códigos de Subsídio Diários"
+        # Garante que não haja múltiplos códigos ativos para o mesmo dia
+        constraints = [
+            models.UniqueConstraint(fields=['created_date'], condition=Q(is_active=True), name='unique_active_code_per_day')
+        ]
+
+    def __str__(self):
+        return f"Código: {self.code} ({self.reward_amount} Kz) - Ativo: {self.is_active}"
+
+class UserRewardClaim(models.Model):
+    """Rastreia quais usuários resgataram um código em uma determinada data."""
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="Usuário")
+    reward_code = models.ForeignKey(DailyRewardCode, on_delete=models.CASCADE, verbose_name="Código Resgatado")
+    claim_date = models.DateField(default=date.today, verbose_name="Data do Resgate")
+    claimed_at = models.DateTimeField(auto_now_add=True, verbose_name="Horário do Resgate")
+
+    class Meta:
+        verbose_name = "Resgate de Subsídio"
+        verbose_name_plural = "Resgates de Subsídios"
+        # Garante que um usuário só pode resgatar um código UMA VEZ por dia
+        unique_together = ('user', 'claim_date')
+
+    def __str__(self):
+        return f"Resgate de {self.user.phone_number} do código {self.reward_code.code} em {self.claim_date}"
+
+# ---
+# FIM DOS NOVOS MODELOS
+# ---
+
 
 class PlatformSettings(models.Model):
     whatsapp_link = models.URLField(

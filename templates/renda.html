@@ -4,134 +4,254 @@
 {% block title %}Renda{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>CONTABILIDADE</h1>
-</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-<div class="income-container">
-    <div class="income-summary">
-        <h3>Visão Geral</h3>
-        <div class="summary-item">
-            <p><strong>Nível:</strong></p>
-            <span>{{ active_level.level.name|default:"Nenhum" }}</span>
-        </div>
-        <div class="summary-item">
-            <p><strong>Depósito Activo:</strong></p>
-            <span>$ {{ approved_deposit_total|default:"0.00" }}</span>
-        </div>
-        <div class="summary-item highlight">
-            <p><strong>Saldo Activo:</strong></p>
-            <span>$ {{ user.available_balance|default:"0.00" }}</span>
-        </div>
-        <div class="summary-item">
-            <p><strong>Ganho de Subsídio:</strong></p>
-            <span>$ {{ user.subsidy_balance|default:"0.00" }}</span>
-        </div>
-    </div>
-    
-    <div class="income-details">
-        <h3>Detalhes da Renda</h3>
-        <div class="detail-item">
-            <p>Renda de Hoje:</p>
-            <span>$ {{ daily_income|default:"0.00" }}</span>
-        </div>
-        <div class="detail-item">
-            <p>Renda Total:</p>
-            <span>$ {{ total_income|default:"0.00" }}</span>
-        </div>
-        <div class="detail-item">
-            <p>Retirada Total:</p>
-            <span>$ {{ total_withdrawals|default:"0.00" }}</span>
-        </div>
+<div class="main-content-wrapper">
+    <div class="page-header">
+        <h1>Minha Renda <i class="fas fa-chart-line"></i></h1>
     </div>
 
-    <div class="income-actions">
-        <a href="{% url 'tarefa' %}" class="action-button">Ir para Tarefas</a>
+    <div class="income-container">
+        
+        <div class="indicator-group primary-indicators">
+            <h3><i class="fas fa-tachometer-alt"></i> INFORMAÇÕES</h3>
+            
+            <div class="indicator-item level-item">
+                <i class="fas fa-medal indicator-icon primary-blue"></i>
+                <div class="info-text">
+                    <p class="label">Produto</p>
+                    <span class="value">{{ active_level.level.name|default:"Nenhum" }}</span>
+                </div>
+            </div>
+
+            <div class="indicator-item">
+                <i class="fas fa-hand-holding-usd indicator-icon primary-green"></i>
+                <div class="info-text">
+                    <p class="label">Recarga</p>
+                    <span class="value">Kz {{ approved_deposit_total|default:"0.00"|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            <div class="indicator-item highlight-balance">
+                <i class="fas fa-wallet indicator-icon primary-highlight"></i>
+                <div class="info-text">
+                    <p class="label">Saldo</p>
+                    <span class="value">Kz {{ user.available_balance|default:"0.00"|floatformat:2 }}</span>
+                </div>
+            </div>
+
+            <div class="indicator-item">
+                <i class="fas fa-gift indicator-icon primary-red"></i>
+                <div class="info-text">
+                    <p class="label">Ganho de Subsídio</p>
+                    <span class="value">Kz {{ user.subsidy_balance|default:"0.00"|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="indicator-group secondary-indicators">
+            <h3><i class="fas fa-money-bill-wave"></i> Detalhes da Renda</h3>
+            
+            <div class="grid-layout">
+                <div class="indicator-detail-item">
+                    <p class="detail-label"><i class="far fa-calendar-alt"></i> Renda de Hoje:</p>
+                    <span class="detail-value">Kz {{ daily_income|default:"0.00"|floatformat:2 }}</span>
+                </div>
+
+                <div class="indicator-detail-item">
+                    <p class="detail-label"><i class="fas fa-funnel-dollar"></i> Renda Total:</p>
+                    <span class="detail-value">Kz {{ total_income|default:"0.00"|floatformat:2 }}</span>
+                </div>
+                
+                {# REMOVIDO: O bloco "Retirada Total" foi removido conforme solicitado. #}
+                
+            </div>
+        </div>
+
     </div>
 </div>
 
 <style>
+    /* ---------------------------------- */
+    /* 1. ESTILOS GERAIS E LAYOUT (Fundo Branco) */
+    /* ---------------------------------- */
+    body {
+        background-color: #f8f9fa; /* Fundo branco/claro */
+    }
+    .main-content-wrapper {
+        padding: 10px;
+        max-width: 650px; /* Largura padrão ideal para dashboards mobile/desktop */
+        margin: 20px auto;
+    }
     .page-header {
         text-align: center;
-        padding: 20px 0;
-        background-color: #00004d;
-        border-bottom: 2px solid #4CAF50;
-        margin-bottom: 20px;
+        padding: 15px 0;
+        margin-bottom: 25px;
+        /* Remover fundo escuro para design branco */
     }
     .page-header h1 {
-        color: #4CAF50;
-        font-family: 'Arial', sans-serif;
+        color: #007bff; /* Azul primário para título */
+        font-size: 1.8rem;
+        margin: 0;
     }
+    .page-header h1 i {
+        margin-left: 10px;
+        color: #28a745;
+    }
+
     .income-container {
-        background-color: #0d1a2f;
+        background-color: #ffffff; /* Fundo branco para o container principal */
         padding: 25px;
-        border-radius: 15px;
-        margin: 20px auto;
-        max-width: 450px;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        border: 1px solid #1a3250;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
     }
-    .income-summary h3, .income-details h3 {
-        color: #4CAF50;
+
+    /* ---------------------------------- */
+    /* 2. ESTILOS DOS GRUPOS E TÍTULOS */
+    /* ---------------------------------- */
+    .indicator-group h3 {
+        color: #343a40; /* Texto escuro */
         font-size: 1.4rem;
-        border-bottom: 2px solid #1a3250;
+        border-bottom: 2px solid #e9ecef;
         padding-bottom: 10px;
         margin-bottom: 20px;
-        font-family: 'Arial', sans-serif;
+        text-align: left;
     }
-    .income-summary {
+    .indicator-group h3 i {
+        margin-right: 8px;
+        color: #007bff;
+    }
+    .primary-indicators {
         margin-bottom: 30px;
     }
-    .summary-item, .detail-item {
+    
+    /* ---------------------------------- */
+    /* 3. ESTILOS DOS INDICADORES PRINCIPAIS (Cards) */
+    /* ---------------------------------- */
+    .indicator-item {
+        display: flex;
+        align-items: center;
+        background-color: #f1f1f1;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .indicator-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .indicator-icon {
+        font-size: 1.5rem;
+        padding: 12px;
+        border-radius: 50%;
+        margin-right: 15px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .primary-blue { color: #007bff; border: 1px solid #007bff; }
+    .primary-green { color: #28a745; border: 1px solid #28a745; }
+    .primary-red { color: #dc3545; border: 1px solid #dc3545; }
+    .primary-highlight { color: #ffc107; border: 1px solid #ffc107; }
+
+    .info-text {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #1a3250;
+        flex-grow: 1;
     }
-    .summary-item:last-of-type, .detail-item:last-of-type {
-        border-bottom: none;
-    }
-    .summary-item p, .detail-item p {
+    .label {
         margin: 0;
-        color: #e0e0e0;
-        font-size: 1.1rem;
+        color: #6c757d;
+        font-size: 1rem;
+        font-weight: 500;
     }
-    .summary-item span, .detail-item span {
+    .value {
         font-weight: bold;
-        color: #87CEEB;
-        font-size: 1.1rem;
-    }
-    .highlight {
-        background-color: #1a3250;
-        border-radius: 8px;
-        padding: 15px;
-        margin: 10px -15px;
-        border: 2px solid #4CAF50;
-    }
-    .highlight p, .highlight span {
-        color: #fff;
+        color: #343a40;
         font-size: 1.2rem;
     }
-    .income-actions {
-        margin-top: 30px;
+
+    /* Destaque para Saldo Activo */
+    .highlight-balance {
+        background-color: #e2f0ff; /* Fundo azul claro */
+        border: 2px solid #007bff;
+    }
+    .highlight-balance .value {
+        color: #007bff; /* Azul forte */
+        font-size: 1.3rem;
+    }
+
+    /* ---------------------------------- */
+    /* 4. ESTILOS DOS DETALHES DA RENDA (Grid) */
+    /* ---------------------------------- */
+    .grid-layout {
+        display: grid;
+        /* Como o terceiro item (Retirada Total) foi removido, 
+           manteremos duas colunas, mas agora só teremos dois itens. 
+           Em telas menores, ele irá para uma coluna, o que é OK. */
+        grid-template-columns: 1fr 1fr; 
+        gap: 15px;
+    }
+
+    .indicator-detail-item {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
         text-align: center;
     }
-    .action-button {
-        display: block;
-        width: 100%;
-        padding: 15px 20px;
-        background-color: #4CAF50;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 1.1rem;
-        transition: background-color 0.3s;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    .detail-label {
+        margin: 0 0 5px 0;
+        font-size: 0.9rem;
+        color: #6c757d;
+        font-weight: 500;
     }
-    .action-button:hover {
-        background-color: #388e3c;
+    .detail-label i {
+        margin-right: 5px;
+        color: #17a2b8; /* Ciano */
+    }
+    .detail-value {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #343a40;
+    }
+    
+    /* ---------------------------------- */
+    /* 5. RESPONSIVIDADE (Ecrãs Menores) */
+    /* ---------------------------------- */
+    @media (max-width: 576px) {
+        .income-container {
+            padding: 15px;
+        }
+        .page-header h1 {
+            font-size: 1.6rem;
+        }
+        .indicator-group h3 {
+            font-size: 1.3rem;
+        }
+        
+        /* Indicadores em coluna única para ecrãs muito pequenos */
+        .grid-layout {
+            grid-template-columns: 1fr; 
+            gap: 10px;
+        }
+        
+        .indicator-icon {
+            font-size: 1.3rem;
+            padding: 10px;
+        }
+        .value {
+            font-size: 1.1rem;
+        }
+        .highlight-balance .value {
+            font-size: 1.2rem;
+        }
+        .detail-value {
+            font-size: 1.1rem;
+        }
     }
 </style>
 {% endblock %}

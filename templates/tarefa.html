@@ -1,53 +1,50 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Tarefas{% endblock %}
+{% block title %}Tarefas - DDB{% endblock %}
 
 {% block content %}
 <div class="page-container">
-    <div class="page-header">
+    <div class="page-header ddb-header">
         <h1>Tarefas Diárias</h1>
     </div>
 
     {% if not has_active_level %}
-    <div class="sub-section">
-             <div class="full-width-image-container">
-                <img src="{% static 'images/tarefa2_icon.png' %}" alt="inatruções Imagem principal" class="full-width-image">
-            </div>
-            <div class="header">
-                <h2>Instruções</h2>
-            </div>
-
-        <div class="info-box-danger">
-            <p>✨✨✨✨ A SUA MÁQUINA DE REFINARIA DE PETRÓLEO, ESTA SEM PRODUTO ✨✨✨✨
-                
-            <p>✨✨✨✨COMPRE MATÉRIA BRUTA, PARA REFINAR E COMEÇAR A GANHAR, VISITA A PAGINA PERFIL, ESCOLHA PRODUTO, VÁ NO DEPOSITO REALIZA DEPOSITO, E VOLTE NO PERFIL, VÁ NO NIVEL, E COMPRA PRODUTO, A SUA REFINARIA ESTARÁ ACTIVA✨✨✨✨</p>
+    {# --- INSTRUÇÕES QUANDO NÃO HÁ NÍVEL ATIVO (FUNDO BRANCO) --- #}
+    <div class="sub-section white-bg-section">
+        <div class="header">
+            {# Ícone de Bloqueio/Alerta para "Inativo" #}
+            <div class="ddb-icon-large danger">🚫</div>
+            <h2>Instruções - Pacote Inativo!</h2>
         </div>
+
+        <div class="info-box-danger ad-style-box">
+            <p>✨ **SEU PLANO DE PUBLICIDADE ESTÁ BLOQUEADO** ✨</p>
+            <p>Você precisa **adquirir e ativar** um plano para começar a gerar visualizações e lucros.</p>
+            <p><strong>Ação:</strong> Vá para a página **Perfil**, escolha seu **Plano** e ative-o para desbloquear as tarefas.</p>
+        </div>
+    </div>
     {% else %}
         
-        <div class="refinery-image-top-container">
-            <img src="{% static 'images/refinaria_banner.jpg' %}" alt="Refinaria de Petróleo" class="refinery-banner-image">
-        </div>
-
-        <div class="task-machine-container refinery-style">
+        {# --- NOVO CONTAINER DE TAREFAS ATIVAS (REFORMULADO) --- #}
+        
+        <div class="task-machine-container ddb-ad-widget-style">
             
-            <div class="refinery-tower">
-                <div class="tower-pipe pipe-left"></div>
-                <div class="tower-pipe pipe-right"></div>
-                
-                <div class="machine-screen refinery-screen">
-                    <p id="task-message">Clique no botão abaixo para trabalhar e gerar seu ganho diário!</p>
+            <div class="ddb-header-icon-container">
+                {# Ícone de Clicks/Visualizações #}
+                <div class="ddb-icon-large success">👆</div> 
+            </div>
+
+            <div class="ddb-screen-section">
+                <div class="machine-screen ddb-screen">
+                    <p id="task-message">Clique no botão abaixo para gerar uma nova **Visualização Patrocinada** e registrar seu ganho diário!</p>
                 </div>
             </div>
 
-            <div class="machine-body refinery-body">
-                <div class="machine-light-container refinery-lights">
-                    <div class="machine-light red-light" id="light-red"></div>
-                    <div class="machine-light yellow-light" id="light-yellow"></div>
-                    <div class="machine-light green-light" id="light-green"></div>
-                </div>
-                
-                <button id="work-button" class="work-button refinery-valve-button">REFINAR</button>
+            {# O indicador de luzes e o texto "STATUS DO PAINEL" foram removidos #}
+            
+            <div class="ddb-button-section">
+                <button id="work-button" class="work-button ddb-run-button">GERAR VISUALIZAÇÃO</button>
             </div>
         </div>
 
@@ -60,45 +57,30 @@
             </ul>
         {% endif %}
 
-        <div class="tasks-info">
-            <p><strong>Nível Ativo:</strong> {{ active_level.level.name|default:"Nenhum" }}</p>
-            <p><strong>Tarefas diárias restantes:</strong> <span id="tasks-remaining">0</span></p>
-        </div>
-
+        {# --- SCRIPT (LÓGICA MANTIDA) --- #}
         <script>
             document.addEventListener("DOMContentLoaded", function() {
                 const workButton = document.getElementById('work-button');
                 const taskMessage = document.getElementById('task-message');
                 const tasksRemainingSpan = document.getElementById('tasks-remaining');
                 
-                // Elementos de luzes
-                const lightRed = document.getElementById('light-red');
-                const lightYellow = document.getElementById('light-yellow');
-                const lightGreen = document.getElementById('light-green');
-
-                // Estes valores devem ser passados do backend.
                 // Variáveis do Django para JS (LÓGICA MANTIDA)
                 let tasksCompletedToday = {{ tasks_completed_today|default:0 }}; 
                 let maxTasks = {{ max_tasks|default:1 }};
 
-                function updateLightStatus(isWorking = false) {
-                    lightRed.classList.remove('active', 'blinking');
-                    lightYellow.classList.remove('active', 'blinking');
-                    lightGreen.classList.remove('active', 'blinking');
-
+                // A função updateLightStatus foi simplificada, mas ainda é chamada para centralizar a lógica de estado do botão
+                function updateTaskStatus(isWorking = false) {
                     const tasksRemaining = maxTasks - tasksCompletedToday;
 
                     if (isWorking) {
-                        // Estado de processamento
-                        lightYellow.classList.add('blinking');
-                    } else if (tasksRemaining > 0) {
-                        // Pronto para trabalhar (Luz Vermelha Piscando)
-                        lightRed.classList.add('blinking');
-                        workButton.textContent = "REFINAR";
+                        workButton.classList.add('is-processing');
                     } else {
-                        // Tarefas concluídas (Luz Verde Acesa)
-                        lightGreen.classList.add('active');
-                        workButton.textContent = "CONCLUÍDO";
+                        workButton.classList.remove('is-processing');
+                        if (tasksRemaining > 0) {
+                            workButton.textContent = "GERAR VISUALIZAÇÃO";
+                        } else {
+                            workButton.textContent = "CONCLUÍDO";
+                        }
                     }
                 }
 
@@ -108,12 +90,12 @@
                     if (tasksRemaining <= 0) {
                         if (workButton) {
                             workButton.disabled = true;
-                            taskMessage.textContent = "Você já completou suas tarefas diárias.";
+                            taskMessage.textContent = "Parabéns! Você completou todas as visualizações diárias do seu plano.";
                         }
                     } else {
                          if (workButton) {
                             workButton.disabled = false;
-                            taskMessage.textContent = "Clique no botão abaixo para trabalhar e gerar seu ganho diário!";
+                            taskMessage.textContent = "Clique no botão abaixo para gerar uma nova **Visualização Patrocinada** e registrar seu ganho diário!";
                         }
                     }
                     
@@ -121,35 +103,34 @@
                         tasksRemainingSpan.textContent = Math.max(0, tasksRemaining);
                     }
                     
-                    updateLightStatus();
+                    updateTaskStatus(); // Atualiza o status do botão
                 }
         
                 if (workButton) {
                     workButton.addEventListener('click', function() {
                         if (tasksCompletedToday < maxTasks) {
                             workButton.disabled = true;
-                            taskMessage.textContent = "Processando o Petróleo... aguarde.";
-                            updateLightStatus(true); // Ativa o estado de processamento
+                            taskMessage.textContent = "Processando... Análise de Publicidade em andamento...";
+                            updateTaskStatus(true); // Ativa o estado de processamento
 
-                            // Fazer uma requisição AJAX para o backend aqui (LÓGICA MANTIDA)
+                            // Requisição AJAX (LÓGICA MANTIDA)
                             fetch("{% url 'process_task' %}", {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRFToken': '{{ csrf_token }}' // Necessário para POST requests no Django
+                                    'X-CSRFToken': '{{ csrf_token }}' 
                                 }
                             })
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
                                     tasksCompletedToday++;
-                                    taskMessage.textContent = `Tarefa concluída! Ganho diário: $ ${data.daily_gain}.`;
-                                    // Atualizar o saldo do usuário na página se necessário
+                                    taskMessage.textContent = `Visualização concluída! Ganho diário: Kz ${data.daily_gain}.`;
                                 } else {
                                     taskMessage.textContent = data.message || "Ocorreu um erro ao processar a tarefa.";
                                 }
                                 checkTasksStatus();
-                                workButton.disabled = (maxTasks - tasksCompletedToday <= 0); // Reativa se houver tarefas restantes
+                                workButton.disabled = (maxTasks - tasksCompletedToday <= 0); 
                             })
                             .catch(error => {
                                 console.error('Erro:', error);
@@ -167,169 +148,182 @@
 
 <style>
     /* ------------------------------------ */
-    /* NOVO DESIGN: REFINARIA DE PETRÓLEO */
+    /* NOVO DESIGN DDB: PAINEL DIGITAL V2.0 */
     /* ------------------------------------ */
     
+    /* Configuração Global */
+    body {
+        background-color: #f7f7f7 !important; 
+    }
     .page-container {
-        padding: 10px;
+        padding: 15px;
+        background-color: #f7f7f7;
     }
 
-    .page-header {
-        background-color: #0d1a2f; /* Fundo mais escuro */
-        border-bottom: 3px solid #87CEEB; /* Borda temática */
+    /* Cabeçalho Profissional */
+    .page-header.ddb-header {
+        background-color: #000;
+        border-bottom: 3px solid #00E676; 
+        padding: 15px 10px;
+        margin: -15px -15px 20px -15px; 
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
     .page-header h1 {
-        color: #87CEEB; /* Cor azul claro */
-        text-shadow: 0 0 5px rgba(135, 206, 235, 0.5);
+        color: #00E676; 
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 1.5rem;
+        text-shadow: 0 0 8px rgba(0, 230, 118, 0.6);
     }
     
-    /* Imagem de Topo */
-    .refinery-image-top-container {
-        margin: -10px -10px 20px -10px; /* Expande para as bordas do page-container */
-        overflow: hidden;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
-        border-bottom: 3px solid #1a3250;
+    /* Remoção do Banner (Elementos removidos no HTML) */
+    .ddb-ad-banner-container { display: none; } 
+    .ad-banner-image { display: none; }
+
+    /* Novo Container Principal (Widget de Tarefas) */
+    .task-machine-container.ddb-ad-widget-style {
+        background: #fff; /* Fundo branco para o widget */
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        max-width: 400px;
+        margin: 0 auto 20px auto;
+        padding: 25px 20px;
+        box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        text-align: center;
     }
-    .refinery-banner-image {
-        width: 100%;
-        height: 150px;
-        object-fit: cover;
-        filter: brightness(0.7) grayscale(0.1); /* Toque industrial */
+    
+    /* Ícone Grande Centralizado (Novo Elemento) */
+    .ddb-header-icon-container {
+        margin-bottom: 15px;
+        line-height: 1;
+    }
+    .ddb-icon-large {
+        font-size: 3rem; /* Tamanho do ícone */
+        display: block;
+        margin: 0 auto;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    .ddb-icon-large.success {
+        background-color: #00C853; /* Verde para sucesso/ativo */
+    }
+    .ddb-icon-large.danger {
+        background-color: #F44336; /* Vermelho para inativo/alerta */
     }
 
-    /* Container Principal da Máquina (Refinaria) */
-    .task-machine-container.refinery-style {
-        background: linear-gradient(to bottom, #1a3250, #0d1a2f);
-        border: 4px solid #000;
-        border-radius: 15px;
-        max-width: 380px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(255, 255, 255, 0.05);
-    }
-
-    /* Estrutura da Torre (Novo Elemento Visual) */
-    .refinery-tower {
-        position: relative;
-        background-color: #333;
+    /* Tela de Status Simples (Fundo branco/claro) */
+    .machine-screen.ddb-screen {
+        background-color: #f0f0f0; 
+        color: #333; 
+        border: 1px solid #ddd;
         border-radius: 8px;
-        padding: 10px;
-        margin: 10px 0;
-        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
-    }
-
-    /* Tubulações */
-    .tower-pipe {
-        position: absolute;
-        top: 0;
-        width: 8px;
-        height: 100%;
-        background-color: #666;
-        border: 1px solid #999;
-        border-radius: 5px;
-        box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
-    }
-    .pipe-left { left: 5px; }
-    .pipe-right { right: 5px; }
-
-    /* Tela de Status */
-    .machine-screen.refinery-screen {
-        background-color: #00002d;
-        color: #FFC107; /* Cor de alerta ou petróleo */
-        border: 2px solid #FFC107;
-        box-shadow: inset 0 0 15px rgba(255, 193, 7, 0.5);
-        min-height: 90px;
+        padding: 15px;
+        min-height: 70px;
+        text-align: center;
+        box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
     }
     .machine-screen p {
+        font-family: 'Arial', sans-serif; 
         font-size: 1rem;
-        text-shadow: 0 0 5px #FFC107;
-    }
-
-    /* Corpo da Máquina (Onde fica o botão) */
-    .machine-body.refinery-body {
-        padding: 20px 0 10px 0;
-    }
-
-    /* Luzes de Refinaria (Painel de Controle) */
-    .machine-light-container.refinery-lights {
-        margin-bottom: 30px;
-        background-color: #222;
-        border-radius: 5px;
-        padding: 10px 20px;
-        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.9);
-    }
-    .machine-light {
-        width: 20px;
-        height: 20px;
-        border: 2px solid #555;
-        background-color: #111; /* Cor padrão (apagada) */
-        box-shadow: none;
-        animation: none; /* Remove a animação padrão */
-        opacity: 1;
-    }
-
-    /* Estados das Luzes */
-    .machine-light.active, .machine-light.blinking {
-        border: 2px solid #fff;
-    }
-
-    /* Vermelha: Pronto para Iniciar/Erro */
-    .machine-light.red-light.active, .machine-light.red-light.blinking {
-        background-color: #D32F2F;
-        box-shadow: 0 0 12px #D32F2F;
+        font-weight: 500;
+        line-height: 1.4;
+        text-shadow: none;
     }
     
-    /* Amarela: Processando */
-    .machine-light.yellow-light.active, .machine-light.yellow-light.blinking {
-        background-color: #FFC107;
-        box-shadow: 0 0 12px #FFC107;
-    }
+    /* Remoção dos Indicadores de Luzes (Elementos removidos no HTML) */
+    .ddb-indicator-section { display: none; }
     
-    /* Verde: Concluído */
-    .machine-light.green-light.active, .machine-light.green-light.blinking {
-        background-color: #4CAF50;
-        box-shadow: 0 0 12px #4CAF50;
+    /* Botão Principal de Ação */
+    .ddb-button-section {
+        margin-top: 30px;
     }
-    
-    /* Animação de Piscar Otimizada */
-    @keyframes blinking {
-        0% { opacity: 0.2; }
-        100% { opacity: 1; }
+    .work-button.ddb-run-button {
+        width: 100%;
+        padding: 15px;
+        background-color: #00E676; 
+        background-image: linear-gradient(to bottom, #00E676, #00C853);
+        color: #1c1c1c; 
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 8px; 
+        border: none;
+        box-shadow: 0 4px 0 #00A34E;
+        transition: all 0.1s ease;
     }
-    .machine-light.blinking {
-        animation: blinking 0.8s infinite alternate;
+    .work-button.ddb-run-button:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #00A34E;
     }
-    
-    /* Botão Válvula de Refinaria */
-    .work-button.refinery-valve-button {
-        background-color: #E65100; /* Laranja Escuro (Óleo/Fogo) */
-        background-image: linear-gradient(to top, #E65100, #FF9800);
-        color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 5px 0 #BF360C, 0 0 15px rgba(255, 152, 0, 0.5);
-        transform: scale(0.95);
-        margin-bottom: 10px;
-    }
-    .work-button.refinery-valve-button:active {
-        transform: translateY(3px) scale(0.95);
-        box-shadow: 0 2px 0 #BF360C;
-    }
-    .work-button.refinery-valve-button:disabled {
-        background-color: #555 !important;
+    .work-button.ddb-run-button:disabled {
+        background-color: #aaa !important;
         background-image: none !important;
-        box-shadow: 0 5px 0 #333 !important;
-        color: #bbb;
+        box-shadow: 0 4px 0 #888 !important;
+        color: #555 !important;
+    }
+    
+    /* Animação de Carregamento no Botão */
+    .work-button.ddb-run-button.is-processing {
+        background-color: #FFC107 !important;
+        background-image: linear-gradient(to bottom, #FFD54F, #FFC107) !important;
+        box-shadow: 0 4px 0 #FF9800 !important;
+        color: #000 !important;
+        animation: pulse 1.5s infinite;
     }
 
-    /* Informações de Nível (Ajustadas para o novo tema) */
-    .tasks-info {
-        background-color: #1a3250; /* Cor azul marinho mais clara */
-        border: 1px solid #87CEEB;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+    @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 4px 0 #FF9800; }
+        50% { transform: scale(1.02); box-shadow: 0 6px 15px rgba(255, 193, 7, 0.5); }
+        100% { transform: scale(1); box-shadow: 0 4px 0 #FF9800; }
+    }
+
+    /* Informações de Nível (Caixa Elegante - Sem alteração) */
+    .tasks-info.ddb-info-box {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        color: #333;
     }
     .tasks-info strong {
-        color: #4CAF50; /* Cor verde para destacar o status */
+        color: #00A34E;
+        font-weight: 700;
     }
+    
+    /* Estilo para a caixa de instruções (quando o nível está inativo) */
+    .ad-style-box {
+        background-color: #fff3e0;
+        border: 2px solid #ff9800;
+        border-radius: 10px;
+        padding: 20px;
+        color: #333;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    .ad-style-box strong {
+        color: #ff9800;
+    }
+    .sub-section.white-bg-section {
+        padding: 10px 0;
+    }
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .header h2 {
+        color: #000;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+    }
+    .section-icon { display: none; } /* Removido o ícone antigo de instrução */
 
-    /* Resetando estilos antigos não utilizados: */
-    .machine-dial { display: none; }
 </style>
 {% endblock %}

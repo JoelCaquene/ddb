@@ -8,20 +8,31 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import random
-from datetime import date
+# Importação necessária para lidar com a hora atual
+from datetime import date, time, datetime 
 
 from .forms import RegisterForm, DepositForm, WithdrawalForm, BankDetailsForm
-from .models import PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings
+from .models import (
+    PlatformSettings, CustomUser, Level, UserLevel, BankDetails, Deposit, 
+    Withdrawal, Task, PlatformBankDetails, Roulette, RouletteSettings,
+    DailyRewardCode, UserRewardClaim 
+)
 
-# --- FUNÇÃO ATUALIZADA ---
+# --- FUNÇÕES DE NAVEGAÇÃO BÁSICAS ---
+
 def home(request):
+    """
+    Redireciona o usuário autenticado para o menu e o não autenticado para o cadastro.
+    """
     if request.user.is_authenticated:
         return redirect('menu')
     else:
         return redirect('cadastro')
-# --- FIM DA FUNÇÃO ATUALIZADA ---
 
 def menu(request):
+    """
+    Página principal do menu após o login.
+    """
     user_level = None
     levels = Level.objects.all().order_by('deposit_value')
 
@@ -42,7 +53,13 @@ def menu(request):
     return render(request, 'menu.html', context)
 
 def cadastro(request):
+    """
+    Lida com o registro de novos usuários.
+    """
     invite_code_from_url = request.GET.get('invite', None)
+    
+    # Constante para o bônus de boas-vindas
+    WELCOME_BONUS = 750 
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -50,7 +67,6 @@ def cadastro(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
             
-            # --- CORREÇÃO AQUI: O NOME DO CAMPO NO FORM É 'invited_by_code' ---
             invited_by_code = form.cleaned_data.get('invited_by_code')
             
             if invited_by_code:
@@ -61,8 +77,12 @@ def cadastro(request):
                     messages.error(request, 'Código de convite inválido.')
                     return render(request, 'cadastro.html', {'form': form})
             
+            # Adiciona o bônus de boas-vindas ao saldo disponível
+            user.available_balance = WELCOME_BONUS
             user.save()
+            
             login(request, user)
+            messages.success(request, f'Bem-vindo(a)! Você recebeu {WELCOME_BONUS} Kz de bônus de boas-vindas.')
             return redirect('menu')
         else:
             try:
@@ -71,7 +91,6 @@ def cadastro(request):
                 whatsapp_link = '#'
             return render(request, 'cadastro.html', {'form': form, 'whatsapp_link': whatsapp_link})
     else:
-        # --- CORREÇÃO AQUI: O NOME DO CAMPO NO FORM É 'invited_by_code' ---
         if invite_code_from_url:
             form = RegisterForm(initial={'invited_by_code': invite_code_from_url})
         else:
@@ -85,6 +104,9 @@ def cadastro(request):
     return render(request, 'cadastro.html', {'form': form, 'whatsapp_link': whatsapp_link})
 
 def user_login(request):
+    """
+    Lida com o login do usuário.
+    """
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -103,14 +125,23 @@ def user_login(request):
 
 @login_required
 def user_logout(request):
+    """
+    Lida com o logout do usuário.
+    """
     logout(request)
     return redirect('menu')
 
-# --- FUNÇÃO DE DEPÓSITO ATUALIZADA PARA O NOVO FLUXO ---
+# --- FUNÇÕES DE TRANSAÇÃO E FINANÇAS ---
+
 @login_required
 def deposito(request):
+    """
+    Lida com o envio de comprovativo de depósito pelo usuário.
+    Implementa um fluxo de múltiplas etapas simulado no frontend.
+    """
     platform_bank_details = PlatformBankDetails.objects.all()
-    deposit_instruction = PlatformSettings.objects.first().deposit_instruction if PlatformSettings.objects.first() else 'Instruções de depósito não disponíveis.'
+    platform_settings = PlatformSettings.objects.first()
+    deposit_instruction = platform_settings.deposit_instruction if platform_settings else 'Instruções de depósito não disponíveis.'
     
     # Busca todos os valores de depósito dos Níveis para a Etapa 2
     level_deposits = Level.objects.all().values_list('deposit_value', flat=True).distinct().order_by('deposit_value')
@@ -118,16 +149,14 @@ def deposito(request):
     level_deposits_list = [str(d) for d in level_deposits] 
 
     if request.method == 'POST':
-        # O formulário agora é submetido na Etapa 3
-        # Os campos 'amount' e 'proof_of_payment' são necessários
+        # O formulário é submetido na Etapa 3
         form = DepositForm(request.POST, request.FILES)
         if form.is_valid():
             deposit = form.save(commit=False)
             deposit.user = request.user
             deposit.save()
             
-            # Não exibe mensagem aqui, mas sim no template
-            # O template irá exibir uma tela de sucesso após a submissão
+            # Retorna a tela de sucesso
             return render(request, 'deposito.html', {
                 'platform_bank_details': platform_bank_details,
                 'deposit_instruction': deposit_instruction,
@@ -148,10 +177,12 @@ def deposito(request):
         'deposit_success': False, # Estado inicial
     }
     return render(request, 'deposito.html', context)
-# --- FIM DA FUNÇÃO DE DEPÓSITO ATUALIZADA ---
 
 @login_required
 def approve_deposit(request, deposit_id):
+    """
+    (Apenas para staff) Aprova um depósito pendente.
+    """
     if not request.user.is_staff:
         messages.error(request, 'Você não tem permissão para realizar esta ação.')
         return redirect('menu')
@@ -162,34 +193,65 @@ def approve_deposit(request, deposit_id):
         deposit.save()
         deposit.user.available_balance += deposit.amount
         deposit.user.save()
-        messages.success(request, f'Depósito de {deposit.amount} $ aprovado para {deposit.user.phone_number}. Saldo atualizado.')
+        messages.success(request, f'Depósito de {deposit.amount} Kz aprovado para {deposit.user.phone_number}. Saldo atualizado.')
     
     return redirect('renda')
 
 @login_required
 def saque(request):
-    withdrawal_instruction = PlatformSettings.objects.first().withdrawal_instruction if PlatformSettings.objects.first() else 'Instruções de saque não disponíveis.'
+    """
+    Lida com a solicitação de saque pelo usuário.
+    """
+    platform_settings = PlatformSettings.objects.first()
+    withdrawal_instruction = platform_settings.withdrawal_instruction if platform_settings else 'Instruções de saque não disponíveis.'
     
     withdrawal_records = Withdrawal.objects.filter(user=request.user).order_by('-created_at')
     
     has_bank_details = BankDetails.objects.filter(user=request.user).exists()
     
+    # Regras de Saque
+    MIN_WITHDRAWAL = 3000
+    START_TIME = time(9, 0) # 09:00 horas
+    END_TIME = time(17, 0) # 17:00 horas
+    
+    current_time = datetime.now().time()
+    today = date.today()
+    
+    # 1. Verifica se já realizou saque hoje
+    has_withdrawn_today = Withdrawal.objects.filter(user=request.user, created_at__date=today).exists()
+    
     if request.method == 'POST':
         form = WithdrawalForm(request.POST)
         if form.is_valid():
             amount = form.cleaned_data['amount']
+            
             if not has_bank_details:
                 messages.error(request, 'Por favor, adicione suas coordenadas bancárias no seu perfil antes de solicitar um saque.')
                 return redirect('perfil')
             
-            if amount < 14:
-                messages.error(request, 'O valor mínimo para saque é 14 $.')
+            # 2. Verifica a hora
+            if not (START_TIME <= current_time <= END_TIME):
+                messages.error(request, f'O saque só é permitido entre {START_TIME.strftime("%H:%M")} e {END_TIME.strftime("%H:%M")}.')
+                return redirect('saque')
+
+            # 3. Verifica se já sacou hoje
+            if has_withdrawn_today:
+                messages.error(request, 'Você só pode realizar 1 saque por dia.')
+                return redirect('saque')
+            
+            # 4. Verifica o valor mínimo
+            if amount < MIN_WITHDRAWAL:
+                messages.error(request, f'O valor mínimo para saque é {MIN_WITHDRAWAL} Kz.')
             elif request.user.available_balance < amount:
                 messages.error(request, 'Saldo insuficiente.')
             else:
-                withdrawal = Withdrawal.objects.create(user=request.user, amount=amount)
+                # Cria o registro de saque
+                Withdrawal.objects.create(user=request.user, amount=amount)
+                
+                # Deduz o valor (será estornado se não for aprovado pelo staff)
                 request.user.available_balance -= amount
                 request.user.save()
+                
                 messages.success(request, 'Saque solicitado com sucesso. Aguarde a aprovação.')
                 return redirect('saque')
     else:
@@ -199,19 +261,25 @@ def saque(request):
         'withdrawal_instruction': withdrawal_instruction,
         'withdrawal_records': withdrawal_records,
         'form': form,
-        'has_bank_details': has_bank_details
+        'has_bank_details': has_bank_details,
+        'has_withdrawn_today': has_withdrawn_today, # Adicionado para exibir info na tela, se necessário
     }
     return render(request, 'saque.html', context)
 
+# --- FUNÇÕES DE TAREFA E NÍVEL ---
+
 @login_required
 def tarefa(request):
+    """
+    Exibe a página de tarefas e verifica o status diário.
+    """
     user = request.user
     
     # Encontra o nível ativo do usuário
     active_level = UserLevel.objects.filter(user=user, is_active=True).first()
     has_active_level = active_level is not None
     
-    # Define o número de tarefas
+    # Define o número de tarefas (pode ser ajustado por settings, mas 1 é o padrão)
     max_tasks = 1
     tasks_completed_today = 0
     
@@ -230,6 +298,9 @@ def tarefa(request):
 @login_required
 @require_POST
 def process_task(request):
+    """
+    Processa a conclusão de uma tarefa diária.
+    """
     user = request.user
     active_level = UserLevel.objects.filter(user=user, is_active=True).first()
 
@@ -252,30 +323,66 @@ def process_task(request):
 
 @login_required
 def nivel(request):
+    """
+    Página de níveis, lida com a compra de novos níveis.
+    """
     levels = Level.objects.all().order_by('deposit_value')
-    user_levels = UserLevel.objects.filter(user=request.user, is_active=True).values_list('level__id', flat=True)
+    # Obtém apenas os IDs dos níveis ATIVOS do usuário
+    user_levels_ids = UserLevel.objects.filter(user=request.user, is_active=True).values_list('level__id', flat=True)
     
     if request.method == 'POST':
         level_id = request.POST.get('level_id')
         level_to_buy = get_object_or_404(Level, id=level_id)
 
-        if level_to_buy.id in user_levels:
-            messages.error(request, 'Você já possui este nível.')
+        # 1. Verifica se o usuário já possui este nível ativo
+        if level_to_buy.id in user_levels_ids:
+            messages.error(request, f'Você já possui o nível {level_to_buy.name} ativo.')
             return redirect('nivel')
         
+        # 2. Verifica se tem saldo suficiente
         if request.user.available_balance >= level_to_buy.deposit_value:
+            # 2.1. Deduz o valor
             request.user.available_balance -= level_to_buy.deposit_value
+            
+            # 2.2. Cria o novo nível ativo
             UserLevel.objects.create(user=request.user, level=level_to_buy, is_active=True)
             request.user.level_active = True
-            request.user.save()
             
+            # 2.3. Lógica de subsídio de convite (para o convidante)
             invited_by_user = request.user.invited_by
-            if invited_by_user and UserLevel.objects.filter(user=invited_by_user, is_active=True).exists():
-                invited_by_user.subsidy_balance += 11
-                invited_by_user.available_balance += 11
-                invited_by_user.save()
-                messages.success(request, f'Parabéns! Você recebeu 11 $ de subsídio por convite de {request.user.phone_number}.')
-
+            
+            if invited_by_user:
+                # Verifica se o convidante JÁ recebeu o subsídio por este convidado
+                # Assumindo que a CustomUser tem um campo/mecanismo para rastrear se o subsídio já foi pago
+                # Se você não tiver um modelo específico de 'SubsidyRecord', vamos usar um flag simples no CustomUser
+                # NO ENTANTO, para garantir que seja pago APENAS UMA VEZ por convidado, é preciso
+                # de um campo no modelo do convidado que indique se o bônus de PRIMEIRO investimento
+                # foi pago ao convidante.
+                
+                # Solução: Usei o campo 'first_level_invested_paid_to_inviter' no modelo do convidado (request.user)
+                # O campo precisa ser adicionado ao seu modelo CustomUser. Se não for adicionado, esta lógica falhará.
+                # ASSUMINDO que o campo existe ou que o 'UserLevel' é o primeiro (o código original não tem um rastreador dedicado)
+                
+                # Lógica de subsídio de 15% (APENAS UMA VEZ)
+                if not request.user.first_level_invested_paid_to_inviter:
+                    # Calcula o subsídio
+                    subsidy_percentage = 0.15 # 15%
+                    subsidy_amount = level_to_buy.deposit_value * subsidy_percentage
+                    
+                    # Adiciona ao saldo do convidante
+                    invited_by_user.subsidy_balance += subsidy_amount
+                    invited_by_user.available_balance += subsidy_amount
+                    invited_by_user.save()
+                    
+                    # Marca que o subsídio de primeiro investimento foi pago
+                    request.user.first_level_invested_paid_to_inviter = True 
+                    
+                    messages.success(request, f'Parabéns! Seu convidado investiu e você recebeu {subsidy_amount:.2f} Kz de subsídio (15%).')
+                else:
+                    # Se for um investimento subsequente do mesmo convidado
+                    messages.info(request, 'Subsídio de primeiro investimento já foi pago.')
+            
+            request.user.save()
             messages.success(request, f'Você comprou o nível {level_to_buy.name} com sucesso!')
         else:
             messages.error(request, 'Saldo insuficiente. Por favor, faça um depósito.')
@@ -284,66 +391,62 @@ def nivel(request):
         
     context = {
         'levels': levels,
-        'user_levels': user_levels,
+        'user_levels': user_levels_ids,
     }
     return render(request, 'nivel.html', context)
 
+# --- FUNÇÕES DE EQUIPA E CONVITE ---
+
 @login_required
 def equipa(request):
+    """
+    Exibe informações sobre a equipe e o link de convite.
+    Cria uma lista única de todos os membros diretos com seus status de investimento.
+    """
     user = request.user
 
     # 1. Encontra todos os membros da equipe (convidados diretos)
     team_members = CustomUser.objects.filter(invited_by=user).order_by('-date_joined')
     team_count = team_members.count()
 
-    # 2. Obtém todos os Níveis disponíveis
-    all_levels = Level.objects.all().order_by('deposit_value')
-
-    # 3. Contabilização por Nível de Investimento
-    levels_data = []
-    total_investors = 0
+    # 2. Processa cada membro para criar a lista unificada com os detalhes necessários
+    all_team_members = []
     
-    # Dicionário para armazenar membros por nível (para exibição no template)
-    members_by_level = {} 
-    
-    # Preenche os dados para cada nível
-    for level in all_levels:
-        # Filtra membros da equipe que possuem este nível ATIVO
-        members_with_level = team_members.filter(userlevel__level=level, userlevel__is_active=True).distinct()
+    for member in team_members:
+        # Busca o nível ativo atual do membro
+        active_level = UserLevel.objects.filter(user=member, is_active=True).first()
         
-        levels_data.append({
-            'name': level.name,
-            'count': members_with_level.count(),
-            'members': members_with_level, 
+        # Define o status de investimento
+        if active_level:
+            investment_status = active_level.level.name # Nome do Nível
+        else:
+            investment_status = "Não Investiu"
+            
+        all_team_members.append({
+            'phone_number': member.phone_number,
+            'registration_date': member.date_joined,
+            'investment_level': investment_status,
         })
-        members_by_level[level.name] = members_with_level
-        total_investors += members_with_level.count()
 
-    # 4. Contabilização de Não Investidores GERAL
-    # Membros que NÃO têm NENHUM UserLevel ativo
-    non_invested_members = team_members.exclude(userlevel__is_active=True)
-    total_non_investors = non_invested_members.count()
-    
-    # Adiciona a contagem de não investidos na estrutura levels_data para a primeira aba
-    levels_data.insert(0, {
-        'name': 'Não Investido',
-        'count': total_non_investors,
-        'members': non_invested_members,
-    })
+    # 3. Cálculo do saldo de subsídios
+    subsidy_balance = user.subsidy_balance
 
+    # 4. Contexto para o template
     context = {
-        'team_members': team_members, # Membros totais
         'team_count': team_count, # Contagem total de membros
         'invite_link': request.build_absolute_uri(reverse('cadastro')) + f'?invite={user.invite_code}',
-        'levels_data': levels_data, # Dados detalhados por nível (para as abas)
-        'total_investors': total_investors, # Contagem de investidores
-        'total_non_investors': total_non_investors, # Contagem de não investidores
-        'subsidy_balance': user.subsidy_balance, # Saldo de Subsídios
+        'subsidy_balance': subsidy_balance, # Saldo de Subsídios
+        'all_team_members': all_team_members, # Nova lista unificada
     }
     return render(request, 'equipa.html', context)
 
+# --- FUNÇÕES DE ROLETAS ---
+
 @login_required
 def roleta(request):
+    """
+    Página da roleta.
+    """
     user = request.user
     
     context = {
@@ -355,6 +458,9 @@ def roleta(request):
 @login_required
 @require_POST
 def spin_roulette(request):
+    """
+    Processa um giro na roleta, deduzindo um giro e concedendo um prêmio.
+    """
     user = request.user
 
     if not user.roulette_spins or user.roulette_spins <= 0:
@@ -366,33 +472,57 @@ def spin_roulette(request):
     try:
         roulette_settings = RouletteSettings.objects.first()
         
-        if roulette_settings and roulette_settings.prizes:
-            prizes_from_admin = [int(p.strip()) for p in roulette_settings.prizes.split(',')]
+        if roulette_settings and roulette_settings.prrizes:
+            # Garante que os prêmios são tratados como inteiros
+            prrizes_from_admin = [int(p.strip()) for p in roulette_settings.prrizes.split(',') if p.strip().isdigit()]
+            
             prizes_weighted = []
-            for prize in prizes_from_admin:
-                if prize <= 1000:
-                    prizes_weighted.extend([prize] * 3)
+            # Se não houver prêmios válidos, usa o padrão
+            if not prrizes_from_admin:
+                prizes = [100, 200, 300, 500, 1000, 2000]
+                prize = random.choice(prizes)
+            else:
+                for prize_value in prrizes_from_admin:
+                    # Lógica de ponderação (exemplo: prêmios menores têm mais chance)
+                    if prize_value <= 1000:
+                        prizes_weighted.extend([prize_value] * 3) # Peso 3
+                    else:
+                        prizes_weighted.append(prize_value) # Peso 1
+                
+                # Se a lista ponderada ainda estiver vazia (só prêmios inválidos), usa o padrão
+                if not prizes_weighted:
+                    prizes = [100, 200, 300, 500, 1000, 2000]
+                    prize = random.choice(prizes)
                 else:
-                    prizes_weighted.append(prize)
-            prize = random.choice(prizes_weighted)
-        else:
-            prizes = [100, 200, 300, 500, 1000, 2000]
-            prize = random.choice(prizes)
+                    prize = random.choice(prizes_weighted)
 
     except RouletteSettings.DoesNotExist:
         prizes = [100, 200, 300, 500, 1000, 2000]
         prize = random.choice(prizes)
+    except Exception as e:
+        # Caso de erro na conversão ou lógica, usa o prêmio padrão
+        print(f"Erro ao processar prêmios da roleta: {e}")
+        prizes = [100, 200, 300, 500, 1000, 2000]
+        prize = random.choice(prizes)
 
+
+    # Cria o registro do prêmio da roleta
     Roulette.objects.create(user=user, prize=prize, is_approved=True)
 
+    # Adiciona o prêmio ao saldo do usuário (subsídio e disponível)
     user.subsidy_balance += prize
     user.available_balance += prize
     user.save()
 
-    return JsonResponse({'success': True, 'prize': prize, 'message': f'Parabéns! Você ganhou {prize} $.'})
+    return JsonResponse({'success': True, 'prize': prize, 'roulette_spins': user.roulette_spins, 'message': f'Parabéns! Você ganhou {prize} Kz.'})
+
+# --- FUNÇÕES DE PERFIL E INFORMAÇÕES GERAIS ---
 
 @login_required
 def sobre(request):
+    """
+    Exibe a página 'Sobre' com o histórico da plataforma.
+    """
     try:
         platform_settings = PlatformSettings.objects.first()
         history_text = platform_settings.history_text if platform_settings else 'Histórico da plataforma não disponível.'
@@ -403,6 +533,9 @@ def sobre(request):
 
 @login_required
 def perfil(request):
+    """
+    Página de perfil, lida com detalhes bancários e mudança de senha.
+    """
     bank_details, created = BankDetails.objects.get_or_create(user=request.user)
     user_levels = UserLevel.objects.filter(user=request.user, is_active=True)
 
@@ -439,6 +572,9 @@ def perfil(request):
 
 @login_required
 def renda(request):
+    """
+    Exibe a página de renda e estatísticas financeiras do usuário.
+    """
     user = request.user
     
     active_level = UserLevel.objects.filter(user=user, is_active=True).first()
@@ -448,9 +584,10 @@ def renda(request):
     today = date.today()
     daily_income = Task.objects.filter(user=user, completed_at__date=today).aggregate(Sum('earnings'))['earnings__sum'] or 0
 
-    # A linha abaixo foi alterada para corrigir o status para 'Aprovado'
+    # Saques aprovados
     total_withdrawals = Withdrawal.objects.filter(user=user, status='Aprovado').aggregate(Sum('amount'))['amount__sum'] or 0
 
+    # Renda total = Tarefas (ganho de tarefas) + Subsídios (roleta + convites + prêmios diários)
     total_income = (Task.objects.filter(user=user).aggregate(Sum('earnings'))['earnings__sum'] or 0) + user.subsidy_balance
     
     context = {
@@ -462,4 +599,82 @@ def renda(request):
         'total_income': total_income,
     }
     return render(request, 'renda.html', context)
+
+# --- FUNÇÕES DE PRÊMIOS E SUBSÍDIOS ---
+
+@login_required
+def premios_subsidios(request):
+    """
+    Lida com a página de Prêmios e Subsídios, 
+    verificando o status de resgate diário do usuário.
+    """
+    user = request.user
+    today = date.today()
+    
+    # 1. Tenta encontrar o código ativo para o dia
+    # Procura um código ativo criado HOJE (assumindo que o código diário é criado diariamente)
+    active_code = DailyRewardCode.objects.filter(is_active=True, created_date=today).first()
+    
+    # 2. Verifica se o usuário já resgatou hoje (independente do código, se a regra é um resgate por dia)
+    # Se a regra for UM resgate por dia, podemos usar o filtro abaixo para verificar se QUALQUER resgate foi feito hoje.
+    has_claimed_today = UserRewardClaim.objects.filter(user=user, claim_date=today).exists()
+    
+    # 3. Obtém o histórico dos 10 resgates mais recentes do usuário
+    claim_history = UserRewardClaim.objects.filter(user=user).order_by('-claimed_at')[:10]
+    
+    context = {
+        'user': user,
+        'subsidy_balance': user.subsidy_balance,
+        'active_code': active_code,
+        'has_claimed_today': has_claimed_today,
+        'claim_history': claim_history,
+    }
+    return render(request, 'premios_subsidios.html', context)
+
+@login_required
+@require_POST
+def claim_daily_reward(request):
+    """
+    Processa o resgate do código de subsídio diário enviado pelo usuário.
+    Esta é a lógica do prêmio diário.
+    """
+    user = request.user
+    today = date.today()
+    
+    submitted_code = request.POST.get('reward_code', '').strip()
+    
+    # 1. Verifica se já resgatou hoje 
+    if UserRewardClaim.objects.filter(user=user, claim_date=today).exists():
+        messages.error(request, 'Você já resgatou seu prêmio diário hoje.')
+        return redirect('premios_subsidios')
+    
+    # 2. Tenta encontrar o código ativo correspondente ao código enviado
+    # A VALIDAÇÃO 'created_date=today' FOI REMOVIDA PARA CORRIGIR PROBLEMAS DE FUSO HORÁRIO (TIMEZONE).
+    # O administrador deve garantir que apenas o código do dia está ativo.
+    try:
+        active_code = DailyRewardCode.objects.get(
+            code=submitted_code, 
+            is_active=True,
+        )
+    except DailyRewardCode.DoesNotExist:
+        messages.error(request, 'Código de subsídio inválido, expirado ou inativo. Verifique o código do dia.')
+        return redirect('premios_subsidios')
+
+    # 3. Processa o resgate
+    reward_amount = active_code.reward_amount
+    
+    # Cria o registro de resgate
+    UserRewardClaim.objects.create(
+        user=user, 
+        reward_code=active_code, 
+        claim_date=today
+    )
+    
+    # Atualiza o saldo do usuário (subsídio e disponível)
+    user.subsidy_balance += reward_amount
+    user.available_balance += reward_amount # Adicionando também ao saldo disponível
+    user.save()
+    
+    messages.success(request, f'Parabéns! Você resgatou {reward_amount} Kz no seu Saldo de Subsídios.')
+    return redirect('premios_subsidios')
     

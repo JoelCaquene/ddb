@@ -1,393 +1,482 @@
-{% extends "base.html" %}
 {% load static %}
-
-{% block title %}Menu{% endblock %}
-
-{% block content %}
-
-<div id="welcomePopup" class="popup-overlay">
-    <div class="popup-content">
-        <div class="popup-header">
-            <img src="{% static 'images/popup_welcome_image.jpg' %}" alt="Bem-vindo à Saudi Aramco" class="popup-image">
-        </div>
-        <div class="popup-body">
-            <h2 class="popup-title">INFORMAÇÕES</h2>
-            <p class="popup-text">
-                **Saudi Aramco**, é uma das maiores empresas integradas de energia e produtos químicos do mundo, com sede em Dhahran, Arábia Saudita.
-                Atuamos em Seguintes país, Arábia Saudita, Brasil, Portugal, Moçambique, Angola, em forma Virtual. 
-            </p>
-            
-            </p> ✨Taxa de saque✨: 13%; ✨Ganho de convite✨: 11$; ✨Horario de saque✨: 24/24; ✨Duração de saque✨: 0 - 24 horas; ✨Sorteio em todos Domingos✨
-            </p>
-
-            </p>Metódos de deposito e Processamento de saque: Bancos (Agências), Entidade por referências, Visa, Binance.
-            </p>
-            <p class="popup-text disclaimer">
-                FORME A SUA EQUIPA, E GANHE SORTEIO, E $ 581  DE REALIZAR REÚNIÕES OFFLINE E SALÁRIO MENSAL
-            </p>
-            <button id="closePopup" class="popup-close-button">Continuar</button>
-        </div>
-    </div>
-</div>
-<header class="menu-header">
-    <h1 class="platform-name">Saudi Aramco</h1>
-    {% if whatsapp_link %}
-        <a href="{{ whatsapp_link }}" class="support-button">
-            <i class="fa-brands fa-whatsapp"></i> 
-            <span>Apoio</span>
-        </a>
-    {% endif %}
-</header>
-
-<div class="image-gallery">
-    <div class="image-slider">
-        <img src="{% static 'images/placeholder_1.jpg' %}" alt="Imagem da Plataforma 1" class="active">
-        <img src="{% static 'images/placeholder_2.jpg' %}" alt="Imagem da Plataforma 2">
-    </div>
-</div>
-
-<div class="buttons-grid">
-    <a href="{% url 'deposito' %}" class="grid-item">
-        <div class="icon-container">
-            <img src="{% static 'icons/deposito.png' %}" alt="Depósito">
-        </div>
-        <span>Depósito</span>
-    </a>
-    <a href="{% url 'saque' %}" class="grid-item">
-        <div class="icon-container">
-            <img src="{% static 'icons/saque.png' %}" alt="Saque">
-        </div>
-        <span>Saque</span>
-    </a>
-    <a href="{% url 'tarefa' %}" class="grid-item">
-        <div class="icon-container">
-            <img src="{% static 'icons/tarefa.png' %}" alt="Tarefa">
-        </div>
-        <span>Tarefa</span>
-    </a>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - ddb</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    {# Substituição de 'Sobre' por 'Perfil' (Quarta e última posição da grade) #}
-    <a href="{% url 'perfil' %}" class="grid-item">
-        <div class="icon-container">
-            <img src="{% static 'icons/perfil.png' %}" alt="Perfil"> 
-        </div>
-        <span>Perfil</span>
-    </a>
-    
-    {# OS OUTROS BOTÕES FORAM REMOVIDOS PARA MANTER APENAS 4 NA GRADE #}
-</div>
+    <style>
+        /* Importa a fonte Montserrat */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 
-{# Bloco de texto traduzido e imagens em formato banner (100% largura) #}
-<div class="vip-section custom-section">
-    <div class="content-block">
-        
-        {# PRIMEIRA SUB-SEÇÃO: Quem somos? #}
-        <div class="sub-section">
-            <div class="full-width-image-container">
-                <img src="{% static 'images/about_us_icon.png' %}" alt="Quem somos? Imagem principal" class="full-width-image"> 
-            </div>
+        /* Variáveis CSS para Cores e Sombras */
+        :root {
+            --cor-fundo-gradiente: linear-gradient(135deg, #1A0D33 0%, #0D1A33 50%, #1A0D33 100%);
+            --cor-texto-claro: #ffffff;
+            --cor-sombra: 0 4px 12px rgba(0, 0, 0, 0.4);
             
-            <div class="header">
-                <h2>Quem somos?</h2>
-            </div>
-            <p>
-                A Saudi Aramco (formalmente Saudi Arabian Oil Company) é a empresa estatal de petróleo e gás natural da Arábia Saudita.
-            </p>
-            <p>
-                É uma das maiores companhias integradas de energia e produtos químicos do mundo, com sede em Dhahran, Arábia Saudita.
-            </p>
-            <p>
-                Opera a maior rede mundial de hidrocarbonetos (o Master Gas System) e tem um papel central no fornecimento de energia global há mais de 90 anos.
-            </p>
-            <p>
-                É historicamente reconhecida por ter uma das maiores reservas de petróleo e uma das maiores produções de petróleo cru do mundo.
-            </p>
-            <p class="summary">
-            </p>
-        </div>
-        
-        {# SEGUNDA SUB-SEÇÃO: Objetivo? #}
-        <div class="sub-section">
-             <div class="full-width-image-container">
-                <img src="{% static 'images/goal_icon.png' %}" alt="Objetivo? Imagem principal" class="full-width-image"> 
-            </div>
-            <div class="header">
-                <h2>Objetivo?</h2>
-            </div>
-            <p>
-                O principal objetivo é fornecer a energia vital para impulsionar o comércio global, as empresas e o progresso em todo o mundo.
-            </p>
-            <p>
-                Maximizar o valor de seus recursos de hidrocarbonetos e, ao mesmo tempo, investir no crescimento e inovar para maior sustentabilidade.
-            </p>
-            <p>
-                Manter sua posição como a maior empresa de petróleo cru do mundo em volume de produção e um dos produtores de menor custo.
-            </p>
-            <p>
-                Diversificar e expandir para as áreas de refino e produtos químicos (Downstream) e investir em iniciativas de baixo carbono e tecnologias como Captura e Armazenamento de Carbono (CCUS) e hidrogênio.
-            </p>
-            <p>
-                Apoiar a economia da Arábia Saudita através de programas que visam a criação de parcerias estratégicas, a expansão econômica e a diversificação.
-            </p>
-        </div>
-        
-        {# TERCEIRA SUB-SEÇÃO: Conquistas? #}
-        <div class="sub-section">
-             <div class="full-width-image-container">
-                <img src="{% static 'images/achievement_icon.png' %}" alt="Conquistas? Imagem principal" class="full-width-image">
-            </div>
-            <div class="header">
-                <h2>Conquistas?</h2>
-            </div>
-            <p>
-                É frequentemente citada como a empresa de capital aberto de maior valor do mundo, com valor de mercado na casa dos trilhões de dólares.
-            </p>
-            <p>
-                Detém o Campo de Safaniya, o maior campo de petróleo offshore do mundo.
-            </p>
-            <p>
-                Desenvolveu e utiliza tecnologias avançadas para exploração e extração, como o simulador de reservatórios (POWERS) em 1997.
-            </p>
-            <p>
-                Realiza grandes investimentos globais, como ser a única proprietária da maior refinaria de petróleo bruto em um único local na América do Norte (Port Arthur, Texas).
-            </p>
-        </div>
-
-    </div>
-</div>
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Lógica do Slider
-        const images = document.querySelectorAll('.image-slider img');
-        let currentImage = 0;
-
-        if (images.length > 1) {
-            setInterval(() => {
-                images[currentImage].classList.remove('active');
-                currentImage = (currentImage + 1) % images.length;
-                images[currentImage].classList.add('active');
-            }, 3000);
+            --cor-menu-icones-bg: #ffffff;
+            --cor-menu-icone: #1A0D33;
+            --cor-menu-texto: #1A0D33;
+            
+            /* NOVAS VARIAVEIS PARA O GRAFICO */
+            --cor-grafico-bg: #1A0D33;
+            --cor-linha-grafico: #00ffc4; /* Ciano/Verde brilhante */
+            --cor-grafico-texto: #ffffff;
+            --cor-grafico-destaque: #ffc107;
+            
+            /* NOVAS VARIÁVEIS PARA O MODAL SIMPLIFICADO */
+            --cor-modal-fundo: rgba(0,0,0,0.6);
+            --cor-modal-bg-content: #ffffff;
+            --cor-modal-titulo: #1A0D33;
+            --cor-modal-texto-secundario: #6c757d;
         }
 
-        // Lógica do Pop-up de Boas-Vindas
-        const popup = document.getElementById('welcomePopup');
-        const closeButton = document.getElementById('closePopup');
+        /* Estilos Globais e do Body */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--cor-fundo-gradiente);
+            color: var(--cor-texto-claro);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 20px;
+        }
 
-        // Exibe o pop-up a cada carregamento da página.
-        popup.style.display = 'flex'; 
+        /* --- Estilos do Carrossel (Topo) --- */
+        .carousel-container {
+            width: 100%;
+            height: 180px;  
+            margin-top: 0;  
+            overflow: hidden;
+            box-shadow: none;
+            position: relative;
+        }
+        #image-carousel {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1s ease-in-out;
+            background-blend-mode: multiply;  
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;  
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .dot {
+            height: 6px;
+            width: 6px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+        .dot.active {
+            opacity: 1;
+        }
 
-        // Adiciona evento para fechar
-        closeButton.addEventListener('click', () => {
-            popup.style.display = 'none';
+        /* --- Alerta de Segurança (Caixa de Anúncio Deslizante) --- */
+        .security-alert {
+            width: 90%;
+            max-width: 450px;
+            background-color: rgba(255, 255, 255, 0.1);  
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin: 15px auto;
+            display: flex;
+            align-items: center;
+            overflow: hidden; /* Importante para o efeito de texto deslizante */
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--cor-texto-claro);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(2px);  
+        }
+        .security-alert i {
+            color: #ffc107;  
+            margin-right: 10px;
+            font-size: 16px;
+            flex-shrink: 0; /* Impede que o ícone se mova com o texto */
+        }
+        /* Estilo para o texto do anúncio (feito com animação, mas usando uma div interna) */
+        .ad-text-container {
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+        }
+        .ad-text {
+            display: inline-block;
+            animation: marquee 15s linear infinite; /* Animação de deslizamento */
+            padding-left: 100%; /* Começa fora da tela */
+        }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); } /* Desliza para a esquerda até o fim */
+        }
+
+        /* --- Bloco de Ícones do Menu Principal --- */
+        .icon-menu-container {
+            width: 90%;
+            max-width: 450px;
+            background-color: var(--cor-menu-icones-bg);
+            border-radius: 12px;  
+            padding: 15px;
+            margin: 15px auto 30px auto;  
+            box-shadow: var(--cor-sombra);
+        }
+        .icon-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px 5px;  
+        }
+        .action-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--cor-menu-texto);
+            font-size: 12px;
+            font-weight: 600;
+            transition: transform 0.2s, opacity 0.2s;
+            padding: 5px 0;
+        }
+        .action-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .action-button i {
+            background-color: transparent;  
+            color: var(--cor-menu-icone);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px; /* Icones um pouco maiores */
+            margin-bottom: 5px;
+        }
+
+        /* --- Bloco do Gráfico Simulado --- */
+        .chart-container {
+            width: 90%;
+            max-width: 450px;
+            background-color: var(--cor-grafico-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px auto;
+            box-shadow: var(--cor-sombra);
+            text-align: left;
+            position: relative;
+        }
+        .chart-header {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--cor-linha-grafico);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        
+        /* O GRÁFICO (Canvas ou SVG simulado) */
+        .chart-area {
+            position: relative;
+            height: 100px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .simulated-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Uso de SVG simples ou uma linha desenhada com CSS para simulação */
+            background: linear-gradient(to top, rgba(0, 255, 196, 0.1), transparent);
+        }
+        /* Usando um SVG embutido como background para a linha de simulação */
+        .simulated-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolyline fill='none' stroke='%2300ffc4' stroke-width='1.5' points='0,80 10,20 20,60 30,30 40,70 50,40 60,85 70,55 80,95 90,45 100,75'/%3E%3C/svg%3E");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: bottom;
+            animation: pulse 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; transform: scaleY(1); }
+            100% { opacity: 1; transform: scaleY(1.02); }
+        }
+
+        /* Estatísticas de Mês */
+        .stats-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stat-item {
+            text-align: center;
+            flex-grow: 1;
+            padding: 0 5px;
+        }
+        .stat-value {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--cor-grafico-destaque);
+            margin-bottom: 2px;
+        }
+        .stat-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+
+        /* --- Estilos do Modal de Boas-Vindas SIMPLIFICADO (Mantidos) --- */
+        .modal {
+            display: none;  
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: var(--cor-modal-fundo);  
+            padding-top: 15vh;
+            backdrop-filter: blur(3px);
+        }
+        .modal-content {
+            background-color: var(--cor-modal-bg-content);  
+            color: var(--cor-modal-titulo);
+            margin: auto;
+            padding: 30px 20px;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 300px;  
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            text-align: center;
+            animation: fadeIn 0.5s;
+        }
+        .modal-content h4 {
+            color: var(--cor-modal-titulo);  
+            font-size: 16px;  
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .modal-content .modal-icons-header {
+            font-size: 40px;
+            color: #007bff;  
+            margin-bottom: 10px;
+        }
+        .close-btn {
+            color: var(--cor-modal-titulo);
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            margin: 10px 0;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        .modal-link-btn:hover {
+            opacity: 0.9;
+        }
+        .modal-link-btn.whatsapp {
+            background-color: #25D366;  
+            color: white;
+        }
+        .modal-link-btn.telegram {
+            background-color: #0088cc;  
+            color: white;
+        }
+        .modal-link-btn i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="carousel-container">
+        <div id="image-carousel" style="background-image: url('{% static 'ddb/images/image1.jpg' %}');">
+        </div>
+        <div class="carousel-dots" id="carousel-dots">
+        </div>
+    </div>
+
+    <div class="security-alert">
+        <i class="fas fa-volume-up"></i>
+        <div class="ad-text-container">
+            <span class="ad-text">
+                DDB - somos uma empresa especializada em publicidade, levamos a sua marca onde quer seja. Aqui servimos os nossos clientes. 2025/2027
+            </span>
+        </div>
+    </div>
+
+    <div class="icon-menu-container">
+        <div class="icon-menu-grid">
+            
+            <a href="{% url 'deposito' %}" class="action-button">
+                <i class="fas fa-money-bill-wave" style="color: #007bff;"></i> Depósito
+            </a>
+            <a href="{% url 'saque' %}" class="action-button">
+                <i class="fas fa-hand-holding-usd" style="color: #17a2b8;"></i> Saque
+            </a>
+            <a href="{% url 'tarefa' %}" class="action-button">
+                <i class="fas fa-tasks" style="color: #28a745;"></i> Tarefa
+            </a>
+            <a href="{% url 'premios_subsidios' %}" class="action-button">
+                <i class="fas fa-trophy" style="color: #ffc107;"></i> Prémio
+            </a>
+
+            <a href="{% url 'renda' %}" class="action-button">
+                <i class="fas fa-chart-line" style="color: #6c757d;"></i> Renda
+            </a>
+            <a href="{% url 'nivel' %}" class="action-button">
+                <i class="fas fa-medal" style="color: #6f42c1;"></i> Nível
+            </a>
+            
+            <a href="{% url 'equipa' %}" class="action-button">
+                <i class="fas fa-users" style="color: #25D366;"></i> Equipa
+            </a>
+            
+            <a href="{% url 'perfil' %}" class="action-button">
+                <i class="fas fa-user-circle" style="color: #1A0D33;"></i> Perfil
+            </a>
+            
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-header">
+            📈 Resumo de Rendimento (Últimos Meses)
+        </div>
+        <div class="chart-area">
+            <div class="simulated-line"></div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value">55k</div>
+                <div class="stat-label">Renda Mês 1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">72k</div>
+                <div class="stat-label">Renda Mês 2</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">81k</div>
+                <div class="stat-label">Renda Mês 3</div>
+            </div>
+        </div>
+    </div>
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <i class="fas fa-comments modal-icons-header"></i> <h4>CANAIS OFICIAIS DE SUPORTE</h4>
+            <p style="color: var(--cor-modal-texto-secundario); font-size: 13px; margin-bottom: 25px;">
+                Para mais informações ou suporte, visite os nossos canais.
+            </p>
+            
+            <a href="{{ config.link_grupo_whatsapp|default:'#' }}" target="_blank" class="modal-link-btn whatsapp">
+                <i class="fab fa-whatsapp"></i> SUPORTE WHATSAPP
+            </a>
+            <a href="{{ config.link_grupo_telegram|default:'#' }}" target="_blank" class="modal-link-btn telegram">
+                <i class="fab fa-telegram-plane"></i> SUPORTE TELEGRAM
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // --- Lógica do Carrossel (Mantida) ---
+        const carousel = document.getElementById('image-carousel');
+        const dotsContainer = document.getElementById('carousel-dots');
+        
+        const images = [
+            "{% static 'ddb/images/image1.jpg' %}",  
+            "{% static 'ddb/images/image2.jpg' %}",  
+        ];
+        let currentImageIndex = 0;
+
+        images.forEach((_, index) => {
+            const dot = document.createElement('span');
+            dot.classList.add('dot');
+            if (index === 0) dot.classList.add('active');
+            dotsContainer.appendChild(dot);
         });
+        const dots = document.querySelectorAll('.dot');
 
-        // Opcional: fechar ao clicar fora do pop-up
-        window.addEventListener('click', (event) => {
-            if (event.target === popup) {
-                popup.style.display = 'none';
+        function updateCarousel() {
+            carousel.style.backgroundImage = `url('${images[currentImageIndex]}')`;
+            
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentImageIndex);
+            });
+            
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+        }
+
+        setInterval(updateCarousel, 5000);  
+        carousel.style.backgroundImage = `url('${images[0]}')`;
+
+
+        // --- Lógica do Modal de Boas-Vindas (Mantida) ---
+        const modal = document.getElementById("welcomeModal");
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        window.onload = function() {
+            modal.style.display = "block";  
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                closeModal();
             }
-        });
-    });
-</script>
-
-<style>
-    /* Estilos do Pop-up de Boas-Vindas (MANTIDOS) */
-    .popup-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        display: none; 
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-
-    .popup-content {
-        background-color: #0d1a2f; 
-        color: #fff;
-        width: 90%; 
-        max-width: 400px; 
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.9);
-        overflow: hidden;
-        border: 2px solid #87CEEB; 
-    }
-
-    .popup-header {
-        position: relative;
-        height: 100px;
-        background-color: #1a1a4d;
-    }
-
-    .popup-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .popup-body {
-        padding: 15px;
-        text-align: center;
-    }
-
-    .popup-title {
-        font-size: 1.1rem;
-        color: #4CAF50; 
-        margin-top: 0;
-        margin-bottom: 10px;
-    }
-
-    .popup-text {
-        font-size: 0.85rem;
-        margin-bottom: 10px;
-        line-height: 1.4;
-        text-align: left;
-    }
-
-    .popup-text.commitment {
-        color: #87CEEB; 
-        font-weight: bold;
-    }
-    .popup-text.disclaimer {
-        font-size: 0.75rem;
-        color: #ccc;
-    }
-
-    .popup-close-button {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin-top: 15px;
-        cursor: pointer;
-        border-radius: 5px;
-        width: 100%;
-        transition: background-color 0.3s;
-    }
-
-    .popup-close-button:hover {
-        background-color: #45a049;
-    }
-
-    /* Estilos para o Grid de Botões (MENU) - AJUSTADO PARA 4 COLUNAS */
-    .buttons-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr); /* Mantido em 4 colunas */
-        gap: 10px;
-        padding: 10px;
-        margin: 15px 0;
-        background-color: transparent;
-    }
-
-    .grid-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        text-decoration: none;
-        color: #fff;
-        padding: 5px;
-        border-radius: 8px;
-        transition: background-color 0.3s, transform 0.1s;
-        background-color: rgba(255, 255, 255, 0.05);
-        border: none;
-    }
-
-    .grid-item:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-        transform: scale(1.05);
-    }
-
-    .icon-container img {
-        width: 35px;
-        height: 35px;
-        margin-bottom: 5px;
-        filter: drop-shadow(0 0 3px rgba(0, 255, 255, 0.8));
-    }
-
-    .grid-item span {
-        font-size: 0.75rem;
-        font-weight: 500;
-        word-break: break-word;
-    }
-
-
-    /* ESTILOS PARA O BLOCO DE TEXTO */
-    .custom-section {
-        text-align: left;
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #1a1a4d;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-        font-family: 'Arial', sans-serif; 
-        direction: ltr;
-    }
-    
-    .sub-section {
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-    }
-    
-    /* ESTILOS DA IMAGEM EM TELA CHEIA (MANTIDOS E AJUSTADOS O NOME DA CLASSE) */
-    .full-width-image-container {
-        margin-bottom: 15px;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    }
-    
-    .full-width-image {
-        width: 100%; 
-        height: 150px; 
-        object-fit: cover; 
-        display: block;
-    }
-    
-    .header {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        margin-bottom: 10px;
-        color: #87CEEB; 
-    }
-
-    .header h2 {
-        font-size: 1.4rem;
-        margin: 0;
-    }
-    
-    .sub-section p {
-        font-size: 0.9rem;
-        color: #ccc;
-        margin-bottom: 8px;
-        line-height: 1.6;
-        text-align: justify;
-    }
-
-    .summary {
-        font-weight: bold;
-        color: #4CAF50 !important; 
-        margin-top: 15px !important;
-        text-align: left !important;
-    }
-
-    /* REMOÇÃO DO RODAPÉ (MANTIDO) */
-    footer, nav.footer-menu { 
-        display: none !important; 
-    }
-</style>
-{% endblock %}
+        }
+    </script>
+</body>
+</html>
