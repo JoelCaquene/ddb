@@ -17,12 +17,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# CRITICAL: Reads DEBUG from environment, defaults to False for Production.
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Hosts Permitidos
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 if not DEBUG:
-    # Adiciona o hostname do Render dinamicamente
+    # Adiciona o hostname do Render dinamicamente (Funciona apenas se DEBUG for False)
     RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
     if RENDER_EXTERNAL_HOSTNAME:
         ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -118,7 +119,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 # CORREÇÃO CRÍTICA: A pasta 'static' contém a subpasta 'ddb' onde estão as imagens. 
-# Fazemos o Django procurar os arquivos estáticos dentro de 'static/ddb'
 STATICFILES_DIRS = [BASE_DIR / 'static' / 'ddb'] 
 
 # Use WhiteNoise para servir arquivos estáticos de forma comprimida e manifestada em Produção
