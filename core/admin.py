@@ -18,8 +18,9 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 @admin.register(PlatformSettings)
 class PlatformSettingsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'whatsapp_link', 'history_text', 'deposit_instruction', 'withdrawal_instruction')
-    search_fields = ('whatsapp_link',)
+    # >>> ALTERADO: Adição do 'telegram_link' na lista de exibição <<<
+    list_display = ('id', 'whatsapp_link', 'telegram_link', 'history_text', 'deposit_instruction', 'withdrawal_instruction')
+    search_fields = ('whatsapp_link', 'telegram_link')
 
 @admin.register(Level)
 class LevelAdmin(admin.ModelAdmin):

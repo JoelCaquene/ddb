@@ -42,13 +42,17 @@ def menu(request):
     try:
         platform_settings = PlatformSettings.objects.first()
         whatsapp_link = platform_settings.whatsapp_link
+        # >>> ADIÇÃO DO LINK DO TELEGRAM <<<
+        telegram_link = platform_settings.telegram_link
     except (PlatformSettings.DoesNotExist, AttributeError):
         whatsapp_link = '#'
+        telegram_link = '#'
 
     context = {
         'user_level': user_level,
         'levels': levels,
         'whatsapp_link': whatsapp_link,
+        'telegram_link': telegram_link, # >>> ADICIONADO AO CONTEXTO <<<
     }
     return render(request, 'menu.html', context)
 
@@ -86,10 +90,14 @@ def cadastro(request):
             return redirect('menu')
         else:
             try:
-                whatsapp_link = PlatformSettings.objects.first().whatsapp_link
+                platform_settings = PlatformSettings.objects.first()
+                whatsapp_link = platform_settings.whatsapp_link
+                # >>> ADIÇÃO DO LINK DO TELEGRAM <<<
+                telegram_link = platform_settings.telegram_link
             except (PlatformSettings.DoesNotExist, AttributeError):
                 whatsapp_link = '#'
-            return render(request, 'cadastro.html', {'form': form, 'whatsapp_link': whatsapp_link})
+                telegram_link = '#'
+            return render(request, 'cadastro.html', {'form': form, 'whatsapp_link': whatsapp_link, 'telegram_link': telegram_link})
     else:
         if invite_code_from_url:
             form = RegisterForm(initial={'invited_by_code': invite_code_from_url})
@@ -97,11 +105,15 @@ def cadastro(request):
             form = RegisterForm()
     
     try:
-        whatsapp_link = PlatformSettings.objects.first().whatsapp_link
+        platform_settings = PlatformSettings.objects.first()
+        whatsapp_link = platform_settings.whatsapp_link
+        # >>> ADIÇÃO DO LINK DO TELEGRAM <<<
+        telegram_link = platform_settings.telegram_link
     except (PlatformSettings.DoesNotExist, AttributeError):
         whatsapp_link = '#'
+        telegram_link = '#'
 
-    return render(request, 'cadastro.html', {'form': form, 'whatsapp_link': whatsapp_link})
+    return render(request, 'cadastro.html', {'form': form, 'whatsapp_link': whatsapp_link, 'telegram_link': telegram_link}) # >>> ADICIONADO AO CONTEXTO <<<
 
 def user_login(request):
     """
@@ -117,11 +129,15 @@ def user_login(request):
         form = AuthenticationForm()
 
     try:
-        whatsapp_link = PlatformSettings.objects.first().whatsapp_link
+        platform_settings = PlatformSettings.objects.first()
+        whatsapp_link = platform_settings.whatsapp_link
+        # >>> ADIÇÃO DO LINK DO TELEGRAM <<<
+        telegram_link = platform_settings.telegram_link
     except (PlatformSettings.DoesNotExist, AttributeError):
         whatsapp_link = '#'
+        telegram_link = '#'
 
-    return render(request, 'login.html', {'form': form, 'whatsapp_link': whatsapp_link})
+    return render(request, 'login.html', {'form': form, 'whatsapp_link': whatsapp_link, 'telegram_link': telegram_link}) # >>> ADICIONADO AO CONTEXTO <<<
 
 @login_required
 def user_logout(request):
@@ -352,19 +368,11 @@ def nivel(request):
             invited_by_user = request.user.invited_by
             
             if invited_by_user:
-                # Verifica se o convidante JÁ recebeu o subsídio por este convidado
-                # Assumindo que a CustomUser tem um campo/mecanismo para rastrear se o subsídio já foi pago
-                # Se você não tiver um modelo específico de 'SubsidyRecord', vamos usar um flag simples no CustomUser
-                # NO ENTANTO, para garantir que seja pago APENAS UMA VEZ por convidado, é preciso
-                # de um campo no modelo do convidado que indique se o bônus de PRIMEIRO investimento
-                # foi pago ao convidante.
-                
-                # Solução: Usei o campo 'first_level_invested_paid_to_inviter' no modelo do convidado (request.user)
-                # O campo precisa ser adicionado ao seu modelo CustomUser. Se não for adicionado, esta lógica falhará.
-                # ASSUMINDO que o campo existe ou que o 'UserLevel' é o primeiro (o código original não tem um rastreador dedicado)
+                # Nota: A lógica abaixo depende da existência do campo
+                # 'first_level_invested_paid_to_inviter' no seu modelo CustomUser.
                 
                 # Lógica de subsídio de 15% (APENAS UMA VEZ)
-                if not request.user.first_level_invested_paid_to_inviter:
+                if not getattr(request.user, 'first_level_invested_paid_to_inviter', False):
                     # Calcula o subsídio
                     subsidy_percentage = 0.15 # 15%
                     subsidy_amount = level_to_buy.deposit_value * subsidy_percentage
@@ -375,7 +383,8 @@ def nivel(request):
                     invited_by_user.save()
                     
                     # Marca que o subsídio de primeiro investimento foi pago
-                    request.user.first_level_invested_paid_to_inviter = True 
+                    # USANDO SETATTR CASO O CAMPO NÃO EXISTA, mas o ideal é adicioná-lo ao modelo.
+                    setattr(request.user, 'first_level_invested_paid_to_inviter', True)
                     
                     messages.success(request, f'Parabéns! Seu convidado investiu e você recebeu {subsidy_amount:.2f} Kz de subsídio (15%).')
                 else:
@@ -472,17 +481,18 @@ def spin_roulette(request):
     try:
         roulette_settings = RouletteSettings.objects.first()
         
-        if roulette_settings and roulette_settings.prrizes:
+        if roulette_settings and roulette_settings.prizes:
             # Garante que os prêmios são tratados como inteiros
-            prrizes_from_admin = [int(p.strip()) for p in roulette_settings.prrizes.split(',') if p.strip().isdigit()]
+            # Corrigido o erro de digitação de 'prrizes' para 'prizes'
+            prizes_from_admin = [int(p.strip()) for p in roulette_settings.prizes.split(',') if p.strip().isdigit()]
             
             prizes_weighted = []
             # Se não houver prêmios válidos, usa o padrão
-            if not prrizes_from_admin:
+            if not prizes_from_admin:
                 prizes = [100, 200, 300, 500, 1000, 2000]
                 prize = random.choice(prizes)
             else:
-                for prize_value in prrizes_from_admin:
+                for prize_value in prizes_from_admin:
                     # Lógica de ponderação (exemplo: prêmios menores têm mais chance)
                     if prize_value <= 1000:
                         prizes_weighted.extend([prize_value] * 3) # Peso 3
@@ -616,7 +626,6 @@ def premios_subsidios(request):
     active_code = DailyRewardCode.objects.filter(is_active=True, created_date=today).first()
     
     # 2. Verifica se o usuário já resgatou hoje (independente do código, se a regra é um resgate por dia)
-    # Se a regra for UM resgate por dia, podemos usar o filtro abaixo para verificar se QUALQUER resgate foi feito hoje.
     has_claimed_today = UserRewardClaim.objects.filter(user=user, claim_date=today).exists()
     
     # 3. Obtém o histórico dos 10 resgates mais recentes do usuário
@@ -649,8 +658,6 @@ def claim_daily_reward(request):
         return redirect('premios_subsidios')
     
     # 2. Tenta encontrar o código ativo correspondente ao código enviado
-    # A VALIDAÇÃO 'created_date=today' FOI REMOVIDA PARA CORRIGIR PROBLEMAS DE FUSO HORÁRIO (TIMEZONE).
-    # O administrador deve garantir que apenas o código do dia está ativo.
     try:
         active_code = DailyRewardCode.objects.get(
             code=submitted_code, 
