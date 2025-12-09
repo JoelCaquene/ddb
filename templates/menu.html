@@ -419,10 +419,10 @@
                 Para mais informações ou suporte, visite os nossos canais.
             </p>
             
-            <a href="{{ config.link_grupo_whatsapp|default:'#' }}" target="_blank" class="modal-link-btn whatsapp">
+            <a href="{% if config %}{{ config.whatsapp_link|default:'#' }}{% else %}#{% endif %}" target="_blank" class="modal-link-btn whatsapp">
                 <i class="fab fa-whatsapp"></i> SUPORTE WHATSAPP
             </a>
-            <a href="{{ config.link_grupo_telegram|default:'#' }}" target="_blank" class="modal-link-btn telegram">
+            <a href="{% if config %}{{ config.telegram_link|default:'#' }}{% else %}#{% endif %}" target="_blank" class="modal-link-btn telegram">
                 <i class="fab fa-telegram-plane"></i> SUPORTE TELEGRAM
             </a>
         </div>

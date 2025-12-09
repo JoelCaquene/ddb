@@ -32,6 +32,9 @@ def home(request):
 def menu(request):
     """
     Página principal do menu após o login.
+    
+    >>> Alteração aqui: Passa o objeto PlatformSettings como 'config'
+    para permitir que o template acesse link_grupo_whatsapp e link_grupo_telegram.
     """
     user_level = None
     levels = Level.objects.all().order_by('deposit_value')
@@ -39,16 +42,17 @@ def menu(request):
     if request.user.is_authenticated:
         user_level = UserLevel.objects.filter(user=request.user, is_active=True).first()
 
+    # Tenta obter as configurações da plataforma e passa como 'config'
     try:
-        platform_settings = PlatformSettings.objects.first()
-        whatsapp_link = platform_settings.whatsapp_link
-    except (PlatformSettings.DoesNotExist, AttributeError):
-        whatsapp_link = '#'
+        config = PlatformSettings.objects.first()
+    except PlatformSettings.DoesNotExist:
+        config = None # Define como None se não existir
 
     context = {
         'user_level': user_level,
         'levels': levels,
-        'whatsapp_link': whatsapp_link,
+        'config': config, # Passa o objeto completo 'config'
+        # 'whatsapp_link': whatsapp_link, # Removido, pois está acessível via config.link_grupo_whatsapp
     }
     return render(request, 'menu.html', context)
 

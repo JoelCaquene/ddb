@@ -127,6 +127,12 @@ class PlatformSettings(models.Model):
         verbose_name="Link do grupo de apoio do WhatsApp",
         help_text="O link para o grupo de WhatsApp que aparecerá no botão de apoio."
     )
+    # 💡 CAMPO ADICIONADO PARA O TELEGRAM 💡
+    telegram_link = models.URLField(
+        verbose_name="Link do Canal/Grupo do Telegram",
+        help_text="O link para o canal ou grupo do Telegram que aparecerá no botão de apoio.",
+        default='#' # Garante que tenha um valor padrão
+    )
     history_text = models.TextField(
         verbose_name="Texto da página 'Sobre'",
         help_text="O histórico da plataforma."
